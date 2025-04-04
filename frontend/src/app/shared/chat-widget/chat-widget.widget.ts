@@ -29,10 +29,24 @@ export class ChatWidget {
 
     this.userMessage = '';
 
+    let botReply = "I don't understand. Can you please rephrase?";
+
+    const lower = trimmed.toLowerCase();
+    if (lower.includes('update')) {
+      botReply = 'Updated reservation to 2:00pm.';
+    } else if (lower.includes('cancel')) {
+      botReply = 'Reservation cancelled.';
+    } else if (lower.includes('reserve')) {
+      botReply = 'I have reserved you SN137 at 1:00pm.';
+    } else if (lower.includes('thank')) {
+      botReply = 'You are welcome!';
+    } else if (lower.includes('chad')) {
+      botReply = 'Chad is the best!';
+    }
     setTimeout(() => {
       this.messages.push({
         id: this.messageId++,
-        text: "I'm just a demo, but that's a great question!",
+        text: botReply,
         sender: 'bot'
       });
     }, 600);
