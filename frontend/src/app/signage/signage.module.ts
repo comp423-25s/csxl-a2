@@ -44,8 +44,6 @@ import { LeaderboardWidget } from './widgets/leaderboard/leaderboard.widget';
 import { OfficeHoursWidget } from './widgets/office-hours/office-hours.widget';
 import { AnnouncementCardWidget } from './widgets/announcement-card/announcement-card.widget';
 import { PageSpinnerWidget } from './widgets/page-spinner/page-spinner.widget';
-import { ChatWidget } from './widgets/chat-widget/chat-widget.widget';
-
 
 @NgModule({
   declarations: [
@@ -60,7 +58,6 @@ import { ChatWidget } from './widgets/chat-widget/chat-widget.widget';
     OfficeHoursWidget,
     PageSpinnerWidget,
     AnnouncementCardWidget,
-    ChatWidget
   ],
   imports: [
     SignageRoutingModule,
