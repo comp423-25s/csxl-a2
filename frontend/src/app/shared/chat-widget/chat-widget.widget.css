@@ -1,19 +1,19 @@
-button {
+.chatbutton button {
   position: fixed;
   bottom: 30px;
-  right: 30px;
+  right: 40px;
   z-index: 1000;
   margin: 10px;
+  background-color: #201f20;
+  color: white;
 }
 
 .chat-box {
   position: fixed;
   bottom: 90px;
-  right: 30px;
+  right: 40px;
   width: 350px;
   height: 450px;
-  background: white;
-  border: 1px solid #ccc;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   z-index: 1001;
@@ -32,10 +32,13 @@ button {
 }
 
 .chat-content {
-  flex: 1;
   padding: 10px;
   overflow-y: auto;
-  color: black;
+  background-color: black;
+  color: white;
+  flex: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .message {
@@ -44,15 +47,44 @@ button {
   border-radius: 20px;
   font-size: 14px;
   line-height: 1.4;
+  margin-bottom: 10px;
 }
 
 .message.bot {
-  background-color: #e0e0e0;
+  background-color: #2b2a2a;
   align-self: flex-start;
 }
 
 .message.user {
-  background-color: #3f51b5;
+  background-color: #6750a4;
   color: white;
   align-self: flex-end;
+}
+.chat-input {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #201f20;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+  min-width: 0;
+  background: white;
+  color: black;
+}
+
+.chat-input input::placeholder {
+  color: #2b2a2a;
+}
+
+.chat-input button {
+  flex-shrink: 0;
+  color: #6750a4;
 }

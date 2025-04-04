@@ -86,7 +86,7 @@ import { SignageModule } from '../signage/signage.module';
     MatTooltipModule,
     MatSlideToggleModule,
     RouterModule,
-    YouTubePlayer,
+    YouTubePlayer
   ],
   exports: [
     SocialMediaIcon,
