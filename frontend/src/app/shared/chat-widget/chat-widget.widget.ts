@@ -1,20 +1,28 @@
-import { Component } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  ElementRef,
+  ViewChild
+} from '@angular/core';
 
 @Component({
   selector: 'chat-widget',
   templateUrl: './chat-widget.widget.html',
   styleUrls: ['./chat-widget.widget.css']
 })
-export class ChatWidget {
+export class ChatWidget implements AfterViewChecked {
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   isChatOpen = false;
   userMessage = '';
   messages: { id: number; text: string; sender: 'user' | 'bot' }[] = [
     { id: 1, text: "Hi! I'm ChadGPT. How can I help you today?", sender: 'bot' }
   ];
   private messageId = 2;
+  private shouldScroll = false;
 
   toggleChat(): void {
     this.isChatOpen = !this.isChatOpen;
+    this.scrollToBottom();
   }
 
   sendMessage(): void {
@@ -28,6 +36,7 @@ export class ChatWidget {
     });
 
     this.userMessage = '';
+    this.shouldScroll = true;
 
     let botReply = "I don't understand. Can you please rephrase?";
 
@@ -49,6 +58,24 @@ export class ChatWidget {
         text: botReply,
         sender: 'bot'
       });
+      this.shouldScroll = true;
     }, 600);
+  }
+  ngAfterViewChecked() {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
+    }
+  }
+
+  private scrollToBottom(): void {
+    try {
+      this.scrollContainer.nativeElement.scrollTo({
+        top: this.scrollContainer.nativeElement.scrollHeight,
+        behavior: 'smooth'
+      });
+    } catch (err) {
+      console.error('Scroll error', err);
+    }
   }
 }

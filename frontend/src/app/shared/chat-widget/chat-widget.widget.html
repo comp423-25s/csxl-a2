@@ -8,7 +8,7 @@
       <div class="chat-header">
         <span>ChadGPT</span>
       </div>
-      <div class="chat-content">
+      <div #scrollContainer class="chat-content">
         @for (message of messages; track message.id) {
           <div class="message" [ngClass]="message.sender">
             {{ message.text }}
