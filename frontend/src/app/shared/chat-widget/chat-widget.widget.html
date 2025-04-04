@@ -1,3 +1,16 @@
-<button mat-raised-button color="accent" (click)="openChat()">
+<button mat-raised-button color="accent" (click)="toggleChat()">
     💬 Chat with ChadGPT
   </button>
+  @if (isChatOpen) {
+    <div class="chat-box">
+      <div class="chat-header">
+        <span>ChadGPT</span>
+      </div>
+      <div class="chat-content">
+        <div class="message bot">
+          Hi! I'm ChadGPT. How can I help you today?
+        </div>
+      </div>
+    </div>
+  }
+  

@@ -9,7 +9,9 @@ import { Router } from '@angular/router';
 export class ChatWidget {
   constructor(private router: Router) {}
 
-  openChat(): void {
-    this.router.navigate(['/chat']);
+  isChatOpen = false;
+
+  toggleChat(): void {
+    this.isChatOpen = !this.isChatOpen;
   }
 }
