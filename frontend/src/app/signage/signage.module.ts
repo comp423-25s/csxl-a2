@@ -57,7 +57,7 @@ import { PageSpinnerWidget } from './widgets/page-spinner/page-spinner.widget';
     LeaderboardWidget,
     OfficeHoursWidget,
     PageSpinnerWidget,
-    AnnouncementCardWidget
+    AnnouncementCardWidget,
   ],
   imports: [
     SignageRoutingModule,

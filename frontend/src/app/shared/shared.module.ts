@@ -43,6 +43,9 @@ import {
 import { MarkdownDirective } from './directives/markdown.directive';
 import { EventRegistrationCardWidget } from './event-registration-card/event-registration-card.widget';
 import { AboutPaneWidget } from './about-pane/about-pane.widget';
+import { ChatWidget } from './chat-widget/chat-widget.widget';
+
+import { SignageModule } from '../signage/signage.module';
 
 @NgModule({
   declarations: [
@@ -59,7 +62,8 @@ import { AboutPaneWidget } from './about-pane/about-pane.widget';
     OperatingHoursCapitalizationPipe,
     MarkdownDirective,
     EventRegistrationCardWidget,
-    AboutPaneWidget
+    AboutPaneWidget,
+    ChatWidget
   ],
   imports: [
     CommonModule,
@@ -96,7 +100,8 @@ import { AboutPaneWidget } from './about-pane/about-pane.widget';
     CoworkingHoursCard,
     MarkdownDirective,
     EventRegistrationCardWidget,
-    AboutPaneWidget
+    AboutPaneWidget,
+    ChatWidget
   ],
   providers: [GroupEventsPipe]
 })
