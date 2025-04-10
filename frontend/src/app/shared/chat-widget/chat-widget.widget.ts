@@ -12,6 +12,7 @@ import {
   styleUrls: ['./chat-widget.widget.css']
 })
 export class ChatWidget implements AfterViewChecked, OnInit {
+
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   isChatOpen = false;
   userMessage = '';
@@ -29,7 +30,6 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   ngOnInit(): void {
     this.loadMessagesFromLocalStorage();
   }
-
   sendMessage(): void {
     const trimmed = this.userMessage.trim();
     if (!trimmed) return;
@@ -40,6 +40,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
       sender: 'user'
     });
     this.saveMessagesToLocalStorage();
+
 
     this.userMessage = '';
     this.shouldScroll = true;
@@ -86,6 +87,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     this.messages = [];
     localStorage.removeItem('chatMessages');
   }
+
 
   ngAfterViewChecked() {
     if (this.shouldScroll) {
