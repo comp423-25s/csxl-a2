@@ -2,7 +2,8 @@ import {
   AfterViewChecked,
   Component,
   ElementRef,
-  ViewChild
+  ViewChild,
+  OnInit
 } from '@angular/core';
 
 @Component({
@@ -10,7 +11,7 @@ import {
   templateUrl: './chat-widget.widget.html',
   styleUrls: ['./chat-widget.widget.css']
 })
-export class ChatWidget implements AfterViewChecked {
+export class ChatWidget implements AfterViewChecked, OnInit {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   isChatOpen = false;
   userMessage = '';
@@ -25,6 +26,10 @@ export class ChatWidget implements AfterViewChecked {
     this.scrollToBottom();
   }
 
+  ngOnInit(): void {
+    this.loadMessagesFromLocalStorage();
+  }
+
   sendMessage(): void {
     const trimmed = this.userMessage.trim();
     if (!trimmed) return;
@@ -34,6 +39,7 @@ export class ChatWidget implements AfterViewChecked {
       text: trimmed,
       sender: 'user'
     });
+    this.saveMessagesToLocalStorage();
 
     this.userMessage = '';
     this.shouldScroll = true;
@@ -61,6 +67,26 @@ export class ChatWidget implements AfterViewChecked {
       this.shouldScroll = true;
     }, 600);
   }
+
+  saveMessagesToLocalStorage(): void {
+    localStorage.setItem('chatMessages', JSON.stringify(this.messages));
+    localStorage.setItem('chatMessageId', this.messageId.toString());
+  }
+  loadMessagesFromLocalStorage(): void {
+    const storedMessages = localStorage.getItem('chatMessages');
+    const storedId = localStorage.getItem('chatMessageId');
+    if (storedMessages) {
+      this.messages = JSON.parse(storedMessages);
+    }
+    if (storedId) {
+      this.messageId = parseInt(storedId, 10);
+    }
+  }
+  clearMessages(): void {
+    this.messages = [];
+    localStorage.removeItem('chatMessages');
+  }
+
   ngAfterViewChecked() {
     if (this.shouldScroll) {
       this.scrollToBottom();
