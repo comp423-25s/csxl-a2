@@ -65,9 +65,9 @@ def chat_with_bot(
     )
 
     if response.function_call:
-        fn = response["function_call"]
-        fn_name = fn["name"]
-        args = json.loads(fn["arguments"])
+        fn = response.function_call
+        fn_name = fn.name
+        args = json.loads(fn.arguments)
 
         if fn_name == "get_available_rooms":
             date = datetime.fromisoformat(args["date"])
