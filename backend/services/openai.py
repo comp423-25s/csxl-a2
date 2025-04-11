@@ -99,3 +99,18 @@ class OpenAIService:
             return response_model.model_validate_json(
                 completion.choices[0].message.content
             )
+
+    # Enables function calling in the OpenAI API
+    def interpret_with_functions(
+        self, system_prompt: str, user_prompt: str, functions: list[dict]
+    ) -> dict:
+        response = self._client.chat.completions.create(
+            model=self._model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            functions=functions,
+            function_call="auto",
+        )
+        return response.choices[0].message

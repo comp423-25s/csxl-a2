@@ -12,7 +12,6 @@ import {
   styleUrls: ['./chat-widget.widget.css']
 })
 export class ChatWidget implements AfterViewChecked, OnInit {
-
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   isChatOpen = false;
   userMessage = '';
@@ -41,32 +40,39 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     });
     this.saveMessagesToLocalStorage();
 
-
     this.userMessage = '';
     this.shouldScroll = true;
 
-    let botReply = "I don't understand. Can you please rephrase?";
+    const token = localStorage.getItem('bearerToken');
+    console.log('Bearer token being used:', token);
 
-    const lower = trimmed.toLowerCase();
-    if (lower.includes('update')) {
-      botReply = 'Updated reservation to 2:00pm.';
-    } else if (lower.includes('cancel')) {
-      botReply = 'Reservation cancelled.';
-    } else if (lower.includes('reserve')) {
-      botReply = 'I have reserved you SN137 at 1:00pm.';
-    } else if (lower.includes('thank')) {
-      botReply = 'You are welcome!';
-    } else if (lower.includes('chad')) {
-      botReply = 'Chad is the best!';
-    }
-    setTimeout(() => {
-      this.messages.push({
-        id: this.messageId++,
-        text: botReply,
-        sender: 'bot'
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ message: trimmed })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        this.messages.push({
+          id: this.messageId++,
+          text: data.response,
+          sender: 'bot'
+        });
+        this.saveMessagesToLocalStorage();
+        this.shouldScroll = true;
+      })
+      .catch((err) => {
+        this.messages.push({
+          id: this.messageId++,
+          text: "Sorry, I couldn't reach the chatbot backend.",
+          sender: 'bot'
+        });
+        this.shouldScroll = true;
+        console.error(err);
       });
-      this.shouldScroll = true;
-    }, 600);
   }
 
   saveMessagesToLocalStorage(): void {
@@ -87,7 +93,6 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     this.messages = [];
     localStorage.removeItem('chatMessages');
   }
-
 
   ngAfterViewChecked() {
     if (this.shouldScroll) {
