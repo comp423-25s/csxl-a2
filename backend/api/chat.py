@@ -58,8 +58,13 @@ def chat_with_bot(
         },
     ]
 
+    today = datetime.now().strftime("%A, %B %d, %Y")
+
     response = openai_svc.interpret_with_functions(
-        system_prompt="You are a helpful assistant for booking study rooms.",
+        system_prompt=f"""
+        You are a helpful assistant for booking study rooms.
+        Today's date is {today}. When you respond with a date, format it in plain english with the day of the week.
+        """,
         user_prompt=request.message,
         functions=functions,
     )
@@ -78,9 +83,11 @@ def chat_with_bot(
                 if any(slot == 0 for slot in timeslots)  # 0 = Available
             ]
             if available_rooms:
+                pretty_date = datetime.fromisoformat(args["date"]).strftime("%A, %B %d")
                 return {
-                    "response": f"Available rooms on {args['date']}: {', '.join(available_rooms)}"
+                    "response": f"Available rooms on {pretty_date}: {', '.join(available_rooms)}"
                 }
+
             else:
                 return {"response": f"Sorry, no rooms are available on {args['date']}"}
 
