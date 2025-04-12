@@ -20,10 +20,14 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   ];
   private messageId = 2;
   private shouldScroll = false;
+  private justOpenedChat = false;
 
   toggleChat(): void {
     this.isChatOpen = !this.isChatOpen;
-    this.scrollToBottom();
+    if (this.isChatOpen) {
+      this.shouldScroll = true;
+      this.justOpenedChat = true;
+    }
   }
 
   ngOnInit(): void {
@@ -42,9 +46,25 @@ export class ChatWidget implements AfterViewChecked, OnInit {
 
     this.userMessage = '';
     this.shouldScroll = true;
+    const recentMessages = this.messages.slice(-5);
+
+    const openaiFormattedHistory = recentMessages.map((m) => ({
+      role: m.sender === 'bot' ? 'assistant' : 'user',
+      content: m.text
+    }));
 
     const token = localStorage.getItem('bearerToken');
     console.log('Bearer token being used:', token);
+    console.log(
+      JSON.stringify(
+        {
+          message: trimmed,
+          history: openaiFormattedHistory
+        },
+        null,
+        2
+      )
+    );
 
     fetch('/api/chat', {
       method: 'POST',
@@ -52,9 +72,18 @@ export class ChatWidget implements AfterViewChecked, OnInit {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ message: trimmed })
+      body: JSON.stringify({
+        message: trimmed,
+        history: openaiFormattedHistory
+      })
     })
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Error ${res.status}: ${errorText}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         this.messages.push({
           id: this.messageId++,
@@ -65,6 +94,17 @@ export class ChatWidget implements AfterViewChecked, OnInit {
         this.shouldScroll = true;
       })
       .catch((err) => {
+        console.log(
+          JSON.stringify(
+            {
+              message: trimmed,
+              history: openaiFormattedHistory
+            },
+            null,
+            2
+          )
+        );
+
         this.messages.push({
           id: this.messageId++,
           text: "Sorry, I couldn't reach the chatbot backend.",
@@ -72,6 +112,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
         });
         this.shouldScroll = true;
         console.error(err);
+        console.log();
       });
   }
 
@@ -96,16 +137,17 @@ export class ChatWidget implements AfterViewChecked, OnInit {
 
   ngAfterViewChecked() {
     if (this.shouldScroll) {
-      this.scrollToBottom();
+      this.scrollToBottom(this.justOpenedChat);
       this.shouldScroll = false;
+      this.justOpenedChat = false;
     }
   }
 
-  private scrollToBottom(): void {
+  private scrollToBottom(instant = false): void {
     try {
       this.scrollContainer.nativeElement.scrollTo({
         top: this.scrollContainer.nativeElement.scrollHeight,
-        behavior: 'smooth'
+        behavior: instant ? 'auto' : 'smooth'
       });
     } catch (err) {
       console.error('Scroll error', err);

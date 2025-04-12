@@ -33,6 +33,35 @@ def chat_with_bot(
     subject: User = Depends(registered_user),
 ):
     print("Chat endpoint hit")
+    print("Incoming ChatRequest message:", request.message)
+    print("Incoming ChatRequest history:", request.history)
+
+    today = datetime.now().strftime("%A, %B %d, %Y")
+
+    messages = [
+        {
+            "role": "system",
+            "content": f"""
+You are a helpful assistant for booking study rooms.
+Today's date is {today}. When you respond with a date, 
+format it in plain English with the day of the week. 
+You only book study rooms that are listed. If you get 
+a room that is lowercase you should change it to uppercase. 
+You only book rooms if the time is available. You only book 
+rooms with the start time before the end time. Give helpful 
+advice for times to book if not listed. If a student requests
+a room provide the next available time and ask if they want to book it.
+If a student requests a time that is not available, provide the next available time.
+If a student requests a room that is not available, provide the next available room.
+""",
+        }
+    ]
+
+    if request.history:
+        messages.extend([msg.model_dump() for msg in request.history])
+
+    messages.append({"role": "user", "content": request.message})
+
     functions = [
         {
             "name": "get_available_rooms",
@@ -58,14 +87,8 @@ def chat_with_bot(
         },
     ]
 
-    today = datetime.now().strftime("%A, %B %d, %Y")
-
     response = openai_svc.interpret_with_functions(
-        system_prompt=f"""
-        You are a helpful assistant for booking study rooms.
-        Today's date is {today}. When you respond with a date, format it in plain english with the day of the week.
-        """,
-        user_prompt=request.message,
+        messages=messages,
         functions=functions,
     )
 
@@ -80,24 +103,25 @@ def chat_with_bot(
             available_rooms = [
                 room_id
                 for room_id, timeslots in availability.reserved_date_map.items()
-                if any(slot == 0 for slot in timeslots)  # 0 = Available
+                if any(slot == 0 for slot in timeslots)
             ]
             if available_rooms:
-                pretty_date = datetime.fromisoformat(args["date"]).strftime("%A, %B %d")
+                pretty_date = date.strftime("%A, %B %d")
                 return {
                     "response": f"Available rooms on {pretty_date}: {', '.join(available_rooms)}"
                 }
-
             else:
                 return {"response": f"Sorry, no rooms are available on {args['date']}"}
 
         elif fn_name == "reserve_room":
             try:
+                start = datetime.fromisoformat(args["start"])
+                end = datetime.fromisoformat(args["end"])
                 request_model = ReservationRequest(
                     users=[subject],
                     room=RoomPartial(id=args["room_id"]),
-                    start=datetime.fromisoformat(args["start"]),
-                    end=datetime.fromisoformat(args["end"]),
+                    start=start,
+                    end=end,
                     seats=[],
                     state=ReservationState.DRAFT,
                 )
@@ -107,6 +131,7 @@ def chat_with_bot(
                 }
             except ReservationException as e:
                 return {"response": f"❌ Reservation failed: {e}"}
+
     print("GPT message:", response)
     print("GPT message content:", response.content)
     return {"response": response.content or "I'm not sure how to help with that."}
