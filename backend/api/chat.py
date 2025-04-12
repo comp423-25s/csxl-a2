@@ -4,7 +4,7 @@ This API handles AI-powered chatbot requests using the OpenAI service.
 """
 
 from fastapi import APIRouter, Depends
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 
 from backend.models import User
@@ -37,6 +37,8 @@ def chat_with_bot(
     print("Incoming ChatRequest history:", request.history)
 
     today = datetime.now().strftime("%A, %B %d, %Y")
+    time = datetime.now()
+    formatted = time.strftime("%H:%M:%S")
 
     messages = [
         {
@@ -44,15 +46,41 @@ def chat_with_bot(
             "content": f"""
 You are a helpful assistant for booking study rooms.
 Today's date is {today}. When you respond with a date, 
-format it in plain English with the day of the week. 
-You only book study rooms that are listed. If you get 
-a room that is lowercase you should change it to uppercase. 
-You only book rooms if the time is available. You only book 
-rooms with the start time before the end time. Give helpful 
-advice for times to book if not listed. If a student requests
-a room provide the next available time and ask if they want to book it.
-If a student requests a time that is not available, provide the next available time.
-If a student requests a room that is not available, provide the next available room.
+format it in plain English with the day of the week.
+Today's time is {formatted}. When you respond,
+convert the time into 12 hour time. When booking a 
+room, you should only show times for after the current
+time. You should only try and book rooms for after the 
+current time. When someone asks what time rooms are 
+available provide the hour times not the day times.
+Rooms are available to be booked in thirty
+minute increments for any amount less than or equal to
+two hours. Ensure you find the length of time being 
+requested and if it is exactly two hours or shorter 
+and available book it. If you can not book the full time 
+requested ask if they want to book for a shorter amount 
+of time rather than booking a random time. You can 
+reserve rooms for days other than today. If they say a
+day of the week, convert it into the nearest day that
+day of the week falls on. Only search for rooms where the
+start date is before the end date.
+They can be booked over multiple hours including between 
+hours. You can book a room for two consecutive hours.
+You only book study rooms that are listed. If a student
+requests to reserve a room but does not provide a 
+specific room or time, list all available hours. Use the 
+message history to decide if a student is asking for 
+available rooms for the day or available hour times for 
+a room. If you get a room that is lowercase you should 
+change it to uppercase. You only book rooms if the time 
+is available. You only book rooms with the start time 
+before the end time. Give helpful advice for times to 
+book if not listed. If a student requests a room provide
+the next available hour times and ask if they want to 
+book it. If a student requests a time that is not 
+available, provide the next available time. If a student 
+requests a room that is not available, provide the next 
+available room.
 """,
         }
     ]
@@ -85,6 +113,18 @@ If a student requests a room that is not available, provide the next available r
                 "required": ["room_id", "start", "end"],
             },
         },
+        {
+            "name": "get_room_availability",
+            "description": "Get the available hours for a specific room on a given date",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "room_id": {"type": "string"},
+                    "date": {"type": "string", "format": "date"},
+                },
+                "required": ["room_id", "date"],
+            },
+        },
     ]
 
     response = openai_svc.interpret_with_functions(
@@ -105,13 +145,12 @@ If a student requests a room that is not available, provide the next available r
                 for room_id, timeslots in availability.reserved_date_map.items()
                 if any(slot == 0 for slot in timeslots)
             ]
-            if available_rooms:
-                pretty_date = date.strftime("%A, %B %d")
-                return {
-                    "response": f"Available rooms on {pretty_date}: {', '.join(available_rooms)}"
-                }
-            else:
-                return {"response": f"Sorry, no rooms are available on {args['date']}"}
+            return {
+                "response": (
+                    f"Available rooms on {date.strftime('%A, %B %d')}: "
+                    f"{', '.join(available_rooms) if available_rooms else 'None'}"
+                )
+            }
 
         elif fn_name == "reserve_room":
             try:
@@ -131,6 +170,32 @@ If a student requests a room that is not available, provide the next available r
                 }
             except ReservationException as e:
                 return {"response": f"❌ Reservation failed: {e}"}
+
+        elif fn_name == "get_room_availability":
+            date = datetime.fromisoformat(args["date"])
+            room_id = args["room_id"].upper()
+
+            availability = reservation_svc.get_map_reserved_times_by_date(date, subject)
+            room_timeslots = availability.reserved_date_map.get(room_id)
+
+            if room_timeslots is None:
+                return {"response": f" Room {room_id} not found."}
+
+            start_time = availability.operating_hours_start
+            slot_count = availability.number_of_time_slots
+
+            available_hours = []
+            for i, slot in enumerate(room_timeslots):
+                if slot == 0:
+                    slot_time = start_time + timedelta(minutes=30 * i)
+                    available_hours.append(slot_time.strftime("%I:%M%p").lstrip("0"))
+
+            return {
+                "response": (
+                    f"Available times for room {room_id} on {date.strftime('%A, %B %d')}: "
+                    f"{', '.join(available_hours) if available_hours else 'None'}"
+                )
+            }
 
     print("GPT message:", response)
     print("GPT message content:", response.content)

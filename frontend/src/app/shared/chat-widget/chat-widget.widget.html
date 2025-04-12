@@ -12,6 +12,19 @@
         @for (message of messages; track message.id) {
           <div class="message" [ngClass]="message.sender">
             {{ message.text }}
+            @if (message.sender === 'bot' && isReservationConfirmation(message.text)) {
+              <div class="rating-container">
+                <div class="rating-title">Rate your experience</div>
+                <div class="stars">
+                  @for (star of stars; track star) {
+                    <span 
+                      class="star" 
+                      [class.filled]="star <= rating" 
+                      (click)="setRating(star)">&#9733;</span>
+                  }
+                </div>
+              </div>
+            }
           </div>
         }
       </div>

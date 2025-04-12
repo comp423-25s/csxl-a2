@@ -21,6 +21,23 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   private messageId = 2;
   private shouldScroll = false;
   private justOpenedChat = false;
+  rating = 0;
+
+  stars = [1, 2, 3, 4, 5];
+
+  setRating(star: number): void {
+    this.rating = star;
+  }
+
+  isReservationConfirmation(message: string): boolean {
+    const pattern = /^✅ Room .+ reserved from .+ to .+$/;
+    return pattern.test(message);
+  }
+
+  // Just here for now to be a place holder
+  handleRating(): void {
+    alert('Thank you for your feedback!');
+  }
 
   toggleChat(): void {
     this.isChatOpen = !this.isChatOpen;
@@ -94,20 +111,9 @@ export class ChatWidget implements AfterViewChecked, OnInit {
         this.shouldScroll = true;
       })
       .catch((err) => {
-        console.log(
-          JSON.stringify(
-            {
-              message: trimmed,
-              history: openaiFormattedHistory
-            },
-            null,
-            2
-          )
-        );
-
         this.messages.push({
           id: this.messageId++,
-          text: "Sorry, I couldn't reach the chatbot backend.",
+          text: 'I seem to have expereinced an error. Report it here: {add link}',
           sender: 'bot'
         });
         this.shouldScroll = true;
@@ -133,6 +139,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   clearMessages(): void {
     this.messages = [];
     localStorage.removeItem('chatMessages');
+    localStorage.removeItem('chatMesasgeId');
   }
 
   ngAfterViewChecked() {
