@@ -7,6 +7,9 @@
     <div class="chat-box">
       <div class="chat-header">
         <span>ChadGPT</span>
+        <button mat-icon-button color="white" (click)="toggleChat()"><span class="material-symbols-outlined">
+          close
+          </span></button>
       </div>
       <div #scrollContainer class="chat-content">
         @for (message of messages; track message.id) {

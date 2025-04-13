@@ -25,6 +25,31 @@ openapi_tags = {
 }
 
 
+def get_available_time_ranges(time_slots: list[int], start_time: datetime) -> list[str]:
+    ranges = []
+    slot_duration = timedelta(minutes=30)
+    current_start = None
+
+    for i, slot in enumerate(time_slots):
+        if slot == 0:
+            if current_start is None:
+                current_start = start_time + i * slot_duration
+        else:
+            if current_start is not None:
+                current_end = start_time + i * slot_duration
+                start_str = current_start.strftime("%I:%M%p").lstrip("0")
+                end_str = current_end.strftime("%I:%M%p").lstrip("0")
+                ranges.append(f"{start_str} - {end_str}")
+                current_start = None
+
+    if current_start is not None:
+        current_end = start_time + len(time_slots) * slot_duration
+        start_str = current_start.strftime("%I:%M%p").lstrip("0")
+        end_str = current_end.strftime("%I:%M%p").lstrip("0")
+        ranges.append(f"{start_str} - {end_str}")
+    return ranges
+
+
 @api.post("/chat", response_model=ChatResponse)
 def chat_with_bot(
     request: ChatRequest,
@@ -179,21 +204,16 @@ available room.
             room_timeslots = availability.reserved_date_map.get(room_id)
 
             if room_timeslots is None:
-                return {"response": f" Room {room_id} not found."}
+                return {"response": f"Room {room_id} not found."}
 
-            start_time = availability.operating_hours_start
-            slot_count = availability.number_of_time_slots
-
-            available_hours = []
-            for i, slot in enumerate(room_timeslots):
-                if slot == 0:
-                    slot_time = start_time + timedelta(minutes=30 * i)
-                    available_hours.append(slot_time.strftime("%I:%M%p").lstrip("0"))
+            ranges = get_available_time_ranges(
+                room_timeslots, availability.operating_hours_start
+            )
 
             return {
                 "response": (
-                    f"Available times for room {room_id} on {date.strftime('%A, %B %d')}: "
-                    f"{', '.join(available_hours) if available_hours else 'None'}"
+                    f"Available times for {room_id} on {date.strftime('%A, %B %d')}: "
+                    f"{', '.join(ranges) if ranges else 'None'}"
                 )
             }
 
