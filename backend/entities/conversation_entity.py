@@ -23,10 +23,10 @@ class ConversationEntity(EntityBase):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     # Time when the conversation was created
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    # PID of the user who started the conversation
-    user_pid: Mapped[str] = mapped_column(String, nullable=False)
-    # Name of the user who started the conversation
-    user_name: Mapped[str] = mapped_column(String, nullable=False)
+    # ID of the user who started the conversation
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    # Relationship to the user
+    user: Mapped["UserEntity"] = relationship(back_populates="conversations")
     # Conversation history between the user and the chatbot
     chat_history: Mapped[list[str]] = mapped_column(JSONB, nullable=False)
     # 'Star' rating of the conversation
@@ -50,8 +50,7 @@ class ConversationEntity(EntityBase):
         return cls(
             id=model.id,
             created_at=model.created_at,
-            user_pid=model.user_pid,
-            user_name=model.user_name,
+            user_id=model.user_id,
             chat_history=model.chat_history,
             rating=model.rating,
             feedback=model.feedback,
@@ -67,8 +66,8 @@ class ConversationEntity(EntityBase):
         return Conversation(
             id=self.id,
             created_at=self.created_at,
-            user_pid=self.user_pid,
-            user_name=self.user_name,
+            user_id=self.user_id,
+            user=self.user.to_public_model() if self.user else None,
             chat_history=self.chat_history,
             rating=self.rating,
             feedback=self.feedback,

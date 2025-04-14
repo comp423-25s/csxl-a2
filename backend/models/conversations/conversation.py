@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
-from .. import ConversationOutcome
+from .conversation_outcome import ConversationOutcome
+from ..public_user import PublicUser
 
 __authors__ = ["Ryan Krasinski"]
 __copyright__ = "Copyright 2025"
@@ -12,8 +13,8 @@ class Conversation(BaseModel):
 
     id: int
     created_at: datetime
-    user_pid: str
-    user_name: str
+    user_id: int
+    user: PublicUser | None = None
     chat_history: list[str]
     rating: int
     feedback: str
