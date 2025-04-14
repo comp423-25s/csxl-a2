@@ -21,6 +21,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   private messageId = 2;
   private shouldScroll = false;
   private justOpenedChat = false;
+
   rating = 0;
 
   stars = [1, 2, 3, 4, 5];
@@ -38,13 +39,6 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   handleRating(): void {
     alert('Thank you for your feedback!');
   }
-
-  toggleChat(): void {
-    this.isChatOpen = !this.isChatOpen;
-    if (this.isChatOpen) {
-      this.shouldScroll = true;
-      this.justOpenedChat = true;
-    }
   }
 
   ngOnInit(): void {
@@ -140,6 +134,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     this.messages = [];
     localStorage.removeItem('chatMessages');
     localStorage.removeItem('chatMesasgeId');
+
   }
 
   ngAfterViewChecked() {
