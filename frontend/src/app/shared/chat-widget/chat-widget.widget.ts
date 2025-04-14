@@ -63,7 +63,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
 
     this.userMessage = '';
     this.shouldScroll = true;
-    const recentMessages = this.messages.slice(-5);
+    const recentMessages = this.messages.slice(-10);
 
     const openaiFormattedHistory = recentMessages.map((m) => ({
       role: m.sender === 'bot' ? 'assistant' : 'user',
