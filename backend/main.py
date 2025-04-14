@@ -18,6 +18,7 @@ from .api import (
     room,
     application,
     article,
+    conversation,
     signage,
     websocket,
 )
@@ -69,6 +70,7 @@ app = FastAPI(
         hiring.openapi_tags,
         admin_facts.openapi_tags,
         article.openapi_tags,
+        conversation.openapi_tags,
         signage.openapi_tags,
     ],
 )
@@ -102,6 +104,7 @@ feature_apis = [
     hiring,
     admin_facts,
     article,
+    conversation,
     signage,
     websocket,
 ]

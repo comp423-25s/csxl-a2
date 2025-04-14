@@ -15,6 +15,7 @@ from ...services import (
 )
 from ...services.academics import HiringService
 from ...services.article import ArticleService
+from ...services.conversation import ConversationService
 from ...services.coworking import (
     PolicyService,
     OperatingHoursService,
@@ -22,7 +23,13 @@ from ...services.coworking import (
     SeatService,
 )
 
-__authors__ = ["Kris Jordan", "Ajay Gandecha", "Will Zahrt", "Andrew Lockard"]
+__authors__ = [
+    "Kris Jordan",
+    "Ajay Gandecha",
+    "Will Zahrt",
+    "Andrew Lockard",
+    "Ryan Krasinski",
+]
 __copyright__ = "Copyright 2024"
 __license__ = "MIT"
 
@@ -90,6 +97,17 @@ def article_svc(session: Session):
         PermissionService(session),
         PolicyService(),
         OperatingHoursService(session, PermissionService(session)),
+    )
+
+
+@pytest.fixture()
+def conversation_svc(session: Session):
+    """ConversationService fixture."""
+    return ConversationService(
+        session=session,
+        permission_svc=PermissionService(session),
+        policies_svc=PolicyService(),
+        operating_hours_svc=OperatingHoursService(session, PermissionService(session)),
     )
 
 
