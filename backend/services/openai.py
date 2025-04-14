@@ -99,3 +99,14 @@ class OpenAIService:
             return response_model.model_validate_json(
                 completion.choices[0].message.content
             )
+
+    def interpret_with_functions(
+        self, messages: list[dict], functions: list[dict]
+    ) -> dict:
+        response = self._client.chat.completions.create(
+            model=self._model,
+            messages=messages,
+            functions=functions,
+            function_call="auto",
+        )
+        return response.choices[0].message

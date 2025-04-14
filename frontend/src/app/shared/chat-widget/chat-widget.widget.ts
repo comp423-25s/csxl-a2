@@ -22,18 +22,28 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   private shouldScroll = false;
   private justOpenedChat = false;
 
-  toggleChat(): void {
-    this.isChatOpen = !this.isChatOpen;
-    if (this.isChatOpen) {
-      this.shouldScroll = true;
-      this.justOpenedChat = true;
-    }
+  rating = 0;
+
+  stars = [1, 2, 3, 4, 5];
+
+  setRating(star: number): void {
+    this.rating = star;
+  }
+
+  isReservationConfirmation(message: string): boolean {
+    const pattern = /^✅ Room .+ reserved from .+ to .+$/;
+    return pattern.test(message);
+  }
+
+  // Just here for now to be a place holder
+  handleRating(): void {
+    alert('Thank you for your feedback!');
+  }
   }
 
   ngOnInit(): void {
     this.loadMessagesFromLocalStorage();
   }
-
   sendMessage(): void {
     const trimmed = this.userMessage.trim();
     if (!trimmed) return;
@@ -47,29 +57,63 @@ export class ChatWidget implements AfterViewChecked, OnInit {
 
     this.userMessage = '';
     this.shouldScroll = true;
+    const recentMessages = this.messages.slice(-10);
 
-    let botReply = "I don't understand. Can you please rephrase?";
+    const openaiFormattedHistory = recentMessages.map((m) => ({
+      role: m.sender === 'bot' ? 'assistant' : 'user',
+      content: m.text
+    }));
 
-    const lower = trimmed.toLowerCase();
-    if (lower.includes('update')) {
-      botReply = 'Updated reservation to 2:00pm.';
-    } else if (lower.includes('cancel')) {
-      botReply = 'Reservation cancelled.';
-    } else if (lower.includes('reserve')) {
-      botReply = 'I have reserved you SN137 at 1:00pm.';
-    } else if (lower.includes('thank')) {
-      botReply = 'You are welcome!';
-    } else if (lower.includes('chad')) {
-      botReply = 'Chad is the best!';
-    }
-    setTimeout(() => {
-      this.messages.push({
-        id: this.messageId++,
-        text: botReply,
-        sender: 'bot'
+    const token = localStorage.getItem('bearerToken');
+    console.log('Bearer token being used:', token);
+    console.log(
+      JSON.stringify(
+        {
+          message: trimmed,
+          history: openaiFormattedHistory
+        },
+        null,
+        2
+      )
+    );
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        message: trimmed,
+        history: openaiFormattedHistory
+      })
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Error ${res.status}: ${errorText}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        this.messages.push({
+          id: this.messageId++,
+          text: data.response,
+          sender: 'bot'
+        });
+        this.saveMessagesToLocalStorage();
+        this.shouldScroll = true;
+      })
+      .catch((err) => {
+        this.messages.push({
+          id: this.messageId++,
+          text: 'I seem to have expereinced an error. Report it here: {add link}',
+          sender: 'bot'
+        });
+        this.shouldScroll = true;
+        console.error(err);
+        console.log();
       });
-      this.shouldScroll = true;
-    }, 600);
   }
 
   saveMessagesToLocalStorage(): void {
@@ -89,6 +133,8 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   clearMessages(): void {
     this.messages = [];
     localStorage.removeItem('chatMessages');
+    localStorage.removeItem('chatMesasgeId');
+
   }
 
   ngAfterViewChecked() {
