@@ -7,11 +7,27 @@
     <div class="chat-box">
       <div class="chat-header">
         <span>ChadGPT</span>
+        <button mat-icon-button color="white" (click)="toggleChat()"><span class="material-symbols-outlined">
+          close
+          </span></button>
       </div>
       <div #scrollContainer class="chat-content">
         @for (message of messages; track message.id) {
           <div class="message" [ngClass]="message.sender">
             {{ message.text }}
+            @if (message.sender === 'bot' && isReservationConfirmation(message.text)) {
+              <div class="rating-container">
+                <div class="rating-title">Rate your experience</div>
+                <div class="stars">
+                  @for (star of stars; track star) {
+                    <span 
+                      class="star" 
+                      [class.filled]="star <= rating" 
+                      (click)="setRating(star)">&#9733;</span>
+                  }
+                </div>
+              </div>
+            }
           </div>
         }
       </div>
@@ -22,9 +38,9 @@
           [(ngModel)]="userMessage"
           (keydown.enter)="sendMessage()"
         />
-        <button mat-icon-button color="primary" (click)="sendMessage()">
-          ➤
-        </button>
+        <button mat-icon-button color="primary" (click)="sendMessage()"><span class="material-symbols-outlined">
+          send
+          </span></button>
     </div>
     </div>
   }

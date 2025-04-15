@@ -21,6 +21,7 @@ from .api import (
     conversation,
     signage,
     websocket,
+    chat,
 )
 from .api.coworking import status, reservation, ambassador, operating_hours
 from .api.academics import section_member, term, course, section, my_courses, hiring
@@ -107,6 +108,7 @@ feature_apis = [
     conversation,
     signage,
     websocket,
+    chat,
 ]
 
 for feature_api in feature_apis:

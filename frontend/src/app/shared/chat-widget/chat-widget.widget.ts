@@ -2,7 +2,8 @@ import {
   AfterViewChecked,
   Component,
   ElementRef,
-  ViewChild
+  ViewChild,
+  OnInit
 } from '@angular/core';
 
 @Component({
@@ -10,7 +11,7 @@ import {
   templateUrl: './chat-widget.widget.html',
   styleUrls: ['./chat-widget.widget.css']
 })
-export class ChatWidget implements AfterViewChecked {
+export class ChatWidget implements AfterViewChecked, OnInit {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   isChatOpen = false;
   userMessage = '';
@@ -19,12 +20,36 @@ export class ChatWidget implements AfterViewChecked {
   ];
   private messageId = 2;
   private shouldScroll = false;
+  private justOpenedChat = false;
+  rating = 0;
+
+  stars = [1, 2, 3, 4, 5];
+
+  setRating(star: number): void {
+    this.rating = star;
+  }
+
+  isReservationConfirmation(message: string): boolean {
+    const pattern = /^✅ Room .+ reserved from .+ to .+$/;
+    return pattern.test(message);
+  }
+
+  // Just here for now to be a place holder
+  handleRating(): void {
+    alert('Thank you for your feedback!');
+  }
 
   toggleChat(): void {
     this.isChatOpen = !this.isChatOpen;
-    this.scrollToBottom();
+    if (this.isChatOpen) {
+      this.shouldScroll = true;
+      this.justOpenedChat = true;
+    }
   }
 
+  ngOnInit(): void {
+    this.loadMessagesFromLocalStorage();
+  }
   sendMessage(): void {
     const trimmed = this.userMessage.trim();
     if (!trimmed) return;
@@ -34,45 +59,102 @@ export class ChatWidget implements AfterViewChecked {
       text: trimmed,
       sender: 'user'
     });
+    this.saveMessagesToLocalStorage();
 
     this.userMessage = '';
     this.shouldScroll = true;
+    const recentMessages = this.messages.slice(-10);
 
-    let botReply = "I don't understand. Can you please rephrase?";
+    const openaiFormattedHistory = recentMessages.map((m) => ({
+      role: m.sender === 'bot' ? 'assistant' : 'user',
+      content: m.text
+    }));
 
-    const lower = trimmed.toLowerCase();
-    if (lower.includes('update')) {
-      botReply = 'Updated reservation to 2:00pm.';
-    } else if (lower.includes('cancel')) {
-      botReply = 'Reservation cancelled.';
-    } else if (lower.includes('reserve')) {
-      botReply = 'I have reserved you SN137 at 1:00pm.';
-    } else if (lower.includes('thank')) {
-      botReply = 'You are welcome!';
-    } else if (lower.includes('chad')) {
-      botReply = 'Chad is the best!';
-    }
-    setTimeout(() => {
-      this.messages.push({
-        id: this.messageId++,
-        text: botReply,
-        sender: 'bot'
+    const token = localStorage.getItem('bearerToken');
+    console.log('Bearer token being used:', token);
+    console.log(
+      JSON.stringify(
+        {
+          message: trimmed,
+          history: openaiFormattedHistory
+        },
+        null,
+        2
+      )
+    );
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        message: trimmed,
+        history: openaiFormattedHistory
+      })
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Error ${res.status}: ${errorText}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        this.messages.push({
+          id: this.messageId++,
+          text: data.response,
+          sender: 'bot'
+        });
+        this.saveMessagesToLocalStorage();
+        this.shouldScroll = true;
+      })
+      .catch((err) => {
+        this.messages.push({
+          id: this.messageId++,
+          text: 'I seem to have expereinced an error. Report it here: {add link}',
+          sender: 'bot'
+        });
+        this.shouldScroll = true;
+        console.error(err);
+        console.log();
       });
-      this.shouldScroll = true;
-    }, 600);
   }
+
+  saveMessagesToLocalStorage(): void {
+    localStorage.setItem('chatMessages', JSON.stringify(this.messages));
+    localStorage.setItem('chatMessageId', this.messageId.toString());
+  }
+  loadMessagesFromLocalStorage(): void {
+    const storedMessages = localStorage.getItem('chatMessages');
+    const storedId = localStorage.getItem('chatMessageId');
+    if (storedMessages) {
+      this.messages = JSON.parse(storedMessages);
+    }
+    if (storedId) {
+      this.messageId = parseInt(storedId, 10);
+    }
+  }
+  clearMessages(): void {
+    this.messages = [];
+    localStorage.removeItem('chatMessages');
+    localStorage.removeItem('chatMesasgeId');
+  }
+
   ngAfterViewChecked() {
     if (this.shouldScroll) {
-      this.scrollToBottom();
+      this.scrollToBottom(this.justOpenedChat);
       this.shouldScroll = false;
+      this.justOpenedChat = false;
     }
   }
 
-  private scrollToBottom(): void {
+  private scrollToBottom(instant = false): void {
     try {
       this.scrollContainer.nativeElement.scrollTo({
         top: this.scrollContainer.nativeElement.scrollHeight,
-        behavior: 'smooth'
+        behavior: instant ? 'auto' : 'smooth'
       });
     } catch (err) {
       console.error('Scroll error', err);
