@@ -83,6 +83,12 @@ class UserEntity(EntityBase):
         secondary=article_author_table, back_populates="authors"
     )
 
+    # All of the conversations started by this user.
+    # NOTE: This field establishes a one-to-many relationship between the users and conversation table.
+    conversations: Mapped[list["ConversationEntity"]] = relationship(
+        back_populates="user"
+    )
+
     # All of the hiring assignments for this user.
     # NOTE: This field establishes a one-to-many relationship between the users and article table.
     hiring_assignments: Mapped[list["HiringAssignmentEntity"]] = relationship(
