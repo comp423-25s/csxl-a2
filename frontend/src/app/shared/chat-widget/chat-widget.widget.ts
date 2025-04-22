@@ -22,7 +22,6 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   private shouldScroll = false;
   private justOpenedChat = false;
   rating = 0;
-
   stars = [1, 2, 3, 4, 5];
 
   setRating(star: number): void {
@@ -34,7 +33,6 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     return pattern.test(message);
   }
 
-  // Just here for now to be a place holder
   handleRating(): void {
     alert('Thank you for your feedback!');
   }
@@ -50,6 +48,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   ngOnInit(): void {
     this.loadMessagesFromLocalStorage();
   }
+
   sendMessage(): void {
     const trimmed = this.userMessage.trim();
     if (!trimmed) return;
@@ -113,12 +112,11 @@ export class ChatWidget implements AfterViewChecked, OnInit {
       .catch((err) => {
         this.messages.push({
           id: this.messageId++,
-          text: 'I seem to have expereinced an error. Report it here: {add link}',
+          text: 'I seem to have experienced an error. Report it here: {add link}',
           sender: 'bot'
         });
         this.shouldScroll = true;
         console.error(err);
-        console.log();
       });
   }
 
@@ -126,6 +124,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     localStorage.setItem('chatMessages', JSON.stringify(this.messages));
     localStorage.setItem('chatMessageId', this.messageId.toString());
   }
+
   loadMessagesFromLocalStorage(): void {
     const storedMessages = localStorage.getItem('chatMessages');
     const storedId = localStorage.getItem('chatMessageId');
@@ -136,13 +135,14 @@ export class ChatWidget implements AfterViewChecked, OnInit {
       this.messageId = parseInt(storedId, 10);
     }
   }
+
   clearMessages(): void {
     this.messages = [];
     localStorage.removeItem('chatMessages');
     localStorage.removeItem('chatMesasgeId');
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     if (this.shouldScroll) {
       this.scrollToBottom(this.justOpenedChat);
       this.shouldScroll = false;
