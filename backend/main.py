@@ -156,6 +156,18 @@ def recurring_office_hour_event_exception(
     return JSONResponse(status_code=500, content={"message": str(e)})
 
 
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi import Request
+import logging
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logging.error(f"Validation error: {exc.errors()}")
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+
 # Add feature-specific exception handling middleware
 from .api import events
 

@@ -10,6 +10,7 @@ import json
 from backend.models import User
 from backend.models.chat import ChatRequest, ChatResponse
 from backend.api.authentication import registered_user
+from backend.models.coworking.reservation import ReservationPartial
 from backend.services.openai import OpenAIService
 from backend.services.coworking.reservation import (
     ReservationService,
@@ -72,7 +73,9 @@ def chat_with_bot(
 You are a helpful assistant for booking study rooms.
 Today's date is {today}. When you respond with a date, 
 format it in plain English with the day of the week.
-Today's time is {formatted}. If user requests do not have to do with booking study rooms or the CSXL, respond by suggesting what actions you can perform. When you respond,
+Today's time is {formatted}. If user requests do not 
+have to do with booking study rooms or the CSXL, respond 
+by suggesting what actions you can perform. When you respond,
 convert the time into 12 hour time. When booking a 
 room, you should only show times for after the current
 time. When someone asks what time rooms are 
@@ -87,7 +90,15 @@ of time rather than booking a random time. You can
 reserve rooms for days other than today. If they say a
 day of the week, convert it into the nearest day that
 day of the week falls on. Only search for rooms where the
-start date is before the end date.
+start date is before the end date. Use change_reservation
+rather then update_reservation. If a user says update, change,
+cancel, you should assume they mean the most recently shown
+reservation unless otherwise specified. Do not say that the 
+requested time exceeds the maximum booking time of two hours
+if the user is requesting exactly two hours, book that time.
+If the user says "cancel it",
+or something similar you should assume they mean the most 
+recently shown reservation unless otherwise specified.
 They can be booked over multiple hours including between 
 hours. You can book a room for two consecutive hours.
 You only book study rooms that are listed. If a student
@@ -147,6 +158,55 @@ available room.
                     "date": {"type": "string", "format": "date"},
                 },
                 "required": ["room_id", "date"],
+            },
+        },
+        {
+            "name": "get_user_reservations",
+            "description": "Get a list of all current and upcoming reservations for the user",
+            "parameters": {"type": "object", "properties": {}},
+        },
+        {
+            "name": "get_reservation",
+            "description": "Get a reservation by its ID",
+            "parameters": {
+                "type": "object",
+                "properties": {"reservation_id": {"type": "integer"}},
+                "required": ["reservation_id"],
+            },
+        },
+        {
+            "name": "cancel_reservation",
+            "description": "Cancel an existing reservation by its ID",
+            "parameters": {
+                "type": "object",
+                "properties": {"reservation_id": {"type": "integer"}},
+                "required": ["reservation_id"],
+            },
+        },
+        {
+            "name": "update_reservation",
+            "description": "Change the start and end time of an existing reservation",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "reservation_id": {"type": "integer"},
+                    "start": {"type": "string", "format": "date-time"},
+                    "end": {"type": "string", "format": "date-time"},
+                },
+                "required": ["reservation_id", "start", "end"],
+            },
+        },
+        {
+            "name": "change_reservation",
+            "description": "Change a reservation by canceling the original and reserving a new time",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "reservation_id": {"type": "integer"},
+                    "start": {"type": "string", "format": "date-time"},
+                    "end": {"type": "string", "format": "date-time"},
+                },
+                "required": ["reservation_id", "start", "end"],
             },
         },
     ]
@@ -215,6 +275,102 @@ available room.
                     f"{', '.join(ranges) if ranges else 'None'}"
                 )
             }
+
+        elif fn_name == "get_user_reservations":
+            reservations = reservation_svc.get_current_reservations_for_user(
+                subject, subject
+            )
+            if not reservations:
+                return {"response": "You have no upcoming reservations."}
+
+            formatted = "\n".join(
+                f" ID: {r.id}, Room: {r.room.id if r.room else 'Unknown'}, "
+                f"{r.start.strftime('%A %I:%M%p')} - {r.end.strftime('%I:%M%p')}"
+                for r in reservations
+            )
+
+            return {"response": f"Here are your upcoming reservations:\n{formatted}"}
+
+        elif fn_name == "get_reservation":
+            try:
+                reservation = reservation_svc.get_reservation(
+                    subject, args["reservation_id"]
+                )
+                return {
+                    "response": (
+                        f"Reservation {reservation.id} is in room {reservation.room.id} "
+                        f"from {reservation.start.strftime('%A %I:%M%p')} to {reservation.end.strftime('%I:%M%p')}."
+                    )
+                }
+            except Exception as e:
+                return {"response": f"Could not find reservation: {str(e)}"}
+
+        elif fn_name == "cancel_reservation":
+            try:
+                reservation = reservation_svc.change_reservation(
+                    subject,
+                    ReservationPartial(
+                        id=args["reservation_id"], state=ReservationState.CANCELLED
+                    ),
+                )
+                return {
+                    "response": f" Reservation {args['reservation_id']} has been cancelled."
+                }
+            except Exception as e:
+                return {"response": f"Could not cancel reservation: {str(e)}"}
+
+        elif fn_name == "update_reservation":
+            try:
+                reservation = reservation_svc.change_reservation(
+                    subject,
+                    ReservationPartial(
+                        id=args["reservation_id"],
+                        start=datetime.fromisoformat(args["start"]),
+                        end=datetime.fromisoformat(args["end"]),
+                    ),
+                )
+                return {
+                    "response": f" Updated reservation {reservation.id} to {reservation.start.strftime('%I:%M%p')} - {reservation.end.strftime('%I:%M%p')}."
+                }
+            except Exception as e:
+                return {"response": f"Could not update reservation: {str(e)}"}
+
+        elif fn_name == "change_reservation":
+            try:
+                reservation_svc.change_reservation(
+                    subject,
+                    ReservationPartial(
+                        id=args["reservation_id"],
+                        state=ReservationState.CANCELLED,
+                    ),
+                )
+
+                original = reservation_svc.get_reservation(
+                    subject, args["reservation_id"]
+                )
+
+                new_request = ReservationRequest(
+                    users=[subject],
+                    room=RoomPartial(id=original.room.id),
+                    start=datetime.fromisoformat(args["start"]),
+                    end=datetime.fromisoformat(args["end"]),
+                    state=ReservationState.DRAFT,
+                )
+
+                new_reservation = reservation_svc.draft_reservation(
+                    subject, new_request
+                )
+
+                return {
+                    "response": (
+                        f" Reservation {args['reservation_id']} was cancelled.\n"
+                        f" New reservation created for room {new_reservation.room.id} "
+                        f"from {new_reservation.start.strftime('%I:%M%p')} to {new_reservation.end.strftime('%I:%M%p')}."
+                    )
+                }
+            except Exception as e:
+                print("Error changing reservation:", e)
+                return {"response": f"❌ Could not change reservation: {str(e)}"}
 
     print("GPT message:", response)
     print("GPT message content:", response.content)
