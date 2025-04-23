@@ -20,6 +20,12 @@ def search(
     return user_svc.search(subject, q)
 
 
+@api.get("/me", response_model=User, tags=["Users"])
+def get_me(subject: User = Depends(registered_user)) -> User:
+    """Returns the currently authenticated user's profile."""
+    return subject
+
+
 @api.get("/{onyen}", tags=["Users"])
 def get_by_onyen(
     onyen: str,

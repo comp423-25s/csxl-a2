@@ -7,7 +7,7 @@ from ..api.authentication import registered_user
 from ..services.conversation import ConversationService
 
 from ..models import User
-from ..models.conversations.conversation import Conversation
+from ..models.conversations.conversation import Conversation, ConversationCreate
 
 __authors__ = ["Ryan Krasinski"]
 __copyright__ = "Copyright 2025"
@@ -20,13 +20,12 @@ openapi_tags = {
 }
 
 
-@api.post("", tags=["Conversations"])
+@api.post("", tags=["Conversations"], response_model=Conversation)
 def create_conversation(
-    conversation: Conversation,
+    conversation: ConversationCreate,
     subject: User = Depends(registered_user),
     conversation_svc: ConversationService = Depends(),
 ) -> Conversation:
-    """Create a new conversation."""
     return conversation_svc.create_conversation(conversation)
 
 

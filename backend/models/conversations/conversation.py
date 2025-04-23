@@ -8,14 +8,15 @@ __copyright__ = "Copyright 2025"
 __license__ = "MIT"
 
 
-class Conversation(BaseModel):
-    """Data for a chatbot conversation."""
-
-    id: int
+class ConversationCreate(BaseModel):
     created_at: datetime
     user_id: int
-    user: PublicUser | None = None
     chat_history: list[str]
     rating: int
     feedback: str
     outcome: ConversationOutcome
+
+
+class Conversation(ConversationCreate):
+    id: int
+    user: PublicUser | None = None
