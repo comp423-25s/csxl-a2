@@ -62,6 +62,16 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     const pattern = /^✅ Room .+ reserved from .+ to .+$/;
     return pattern.test(message);
   }
+  isReservationChangeConfirmation(message: string): boolean {
+    const pattern =
+      /^Reservation .+ was cancelled\. New reservation created for room .+ from .+ to .+.$/;
+    return pattern.test(message);
+  }
+
+  isReservationCancellationConfirmation(message: string): boolean {
+    const pattern = /^ Reservation .+ has been cancelled\.$/;
+    return pattern.test(message);
+  }
 
   fetchUser() {
     const token = localStorage.getItem('bearerToken');

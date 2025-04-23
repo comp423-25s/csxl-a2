@@ -363,8 +363,8 @@ available room.
 
                 return {
                     "response": (
-                        f"🔁 Reservation {args['reservation_id']} was cancelled.\n"
-                        f"✅ New reservation created for room {new_reservation.room.id} "
+                        f" Reservation {args['reservation_id']} was cancelled.\n"
+                        f" New reservation created for room {new_reservation.room.id} "
                         f"from {new_reservation.start.strftime('%I:%M%p')} to {new_reservation.end.strftime('%I:%M%p')}."
                     )
                 }
