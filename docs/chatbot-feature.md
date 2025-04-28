@@ -114,7 +114,11 @@ We use the OpenAI GPT model with function calling enabled.
 
 ## Database
 
-TODO
+We created an PostgreSQL database named 'db' in OKD and connected it to our final-project pod.
+![Pod Secrets named in OKD](./images/OKD-Image-1.png)
+Ensured that memory usage by the database was compatible with the usage from other pods (our ex01 and prior secrets possibly created)
+![Storage in OKD](./images/OKD-Image-3.png)
+Created a Chatbot entity to allow the admin page to connect to the database and pull message data from the user.
 
 ## End User Experience
 
