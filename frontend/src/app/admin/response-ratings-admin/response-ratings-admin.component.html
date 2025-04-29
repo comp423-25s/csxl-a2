@@ -1,0 +1,29 @@
+<h1>Manage Chatbot Response Ratings</h1>
+
+<div class="search-bar">
+  <input [(ngModel)]="userId" placeholder="Enter User ID" type="number" />
+  <button (click)="searchUserConversations()" mat-flat-button color="primary">Search</button>
+</div>
+
+<div *ngIf="conversations.length > 0">
+  <h2>Conversations</h2>
+  <div *ngFor="let convo of conversations" class="conversation-card">
+    <h3>Conversation ID: {{ convo.id }}</h3>
+    <div *ngFor="let message of convo.messages">
+      <p><strong>{{ message.sender }}:</strong> {{ message.content }} (Rating: {{ message.rating || 'N/A' }})</p>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="averageRating !== null">
+  <h2>Average Rating: {{ averageRating }}/5</h2>
+</div>
+
+<div *ngIf="messageCountsByDate">
+  <h2>Messages per Day</h2>
+  <ul>
+    <li *ngFor="let date of (messageCountsByDate | keyvalue)">
+      {{ date.key }}: {{ date.value }} messages
+    </li>
+  </ul>
+</div>

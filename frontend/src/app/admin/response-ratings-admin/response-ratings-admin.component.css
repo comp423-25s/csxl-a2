@@ -1,0 +1,11 @@
+.search-bar {
+    margin-bottom: 20px;
+  }
+  
+  .conversation-card {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
