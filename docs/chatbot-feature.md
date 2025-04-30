@@ -122,6 +122,7 @@ Created a Chatbot entity to allow the admin page to connect to the database and 
 
 ## End User Experience
 
-Here’s what users see:
+Here’s an example flow of a user making a room reservation on the frontend:
 
-TODO
+![Chatbot experience finding a room to reserve](./images/ex-chat-1.png)
+![Chatbot experience reserving a room](./images/ex-chat-2.png)
