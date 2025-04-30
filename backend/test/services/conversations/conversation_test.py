@@ -72,13 +72,26 @@ def test_start_conversation(conversation_svc: ConversationService):
 
 def test_get_conversation(conversation_svc: ConversationService):
     """Test retrieving a conversation by ID."""
-    # Get the first conversation from the test data
-    result = conversation_svc.get_conversation(1)
+    # Create a conversation in the database
+    new_conversation = conversation_svc.create_conversation(
+        Conversation(
+            id=1,
+            created_at=datetime.now(),
+            user_id=conversation_data.test_users[0].id,
+            chat_history=["User: Hello", "Bot: Hi there!"],
+            rating=5,
+            feedback="Great service!",
+            outcome=ConversationOutcome.REQUESTED_INFORMATION,
+        )
+    )
+
+    # Retrieve the conversation by ID
+    result = conversation_svc.get_conversation(new_conversation.id)
 
     # Verify the result
-    assert result.id == 1
-    assert result.user_id is not None
-    assert len(result.chat_history) > 0
+    assert result.id == new_conversation.id
+    assert result.user_id == new_conversation.user_id
+    assert result.chat_history == new_conversation.chat_history
 
     # Test retrieving a non-existent conversation
     with pytest.raises(ResourceNotFoundException):
@@ -87,17 +100,25 @@ def test_get_conversation(conversation_svc: ConversationService):
 
 def test_end_conversation(conversation_svc: ConversationService):
     """Test ending a conversation."""
-    # Get the first conversation from the test data
-    conversation = conversation_svc.get_conversation(1)
-    original_outcome = conversation.outcome
+    # Create a conversation in the database
+    new_conversation = conversation_svc.create_conversation(
+        Conversation(
+            id=1,
+            created_at=datetime.now(),
+            user_id=conversation_data.test_users[0].id,
+            chat_history=["User: Hello", "Bot: Hi there!"],
+            rating=5,
+            feedback="Great service!",
+            outcome=ConversationOutcome.REQUESTED_INFORMATION,
+        )
+    )
 
     # End the conversation
-    conversation_svc.end_conversation(1)
+    conversation_svc.end_conversation(new_conversation.id)
 
     # Verify the outcome was updated
-    updated_conversation = conversation_svc.get_conversation(1)
+    updated_conversation = conversation_svc.get_conversation(new_conversation.id)
     assert updated_conversation.outcome == ConversationOutcome.CANCELLED
-    assert updated_conversation.outcome != original_outcome
 
 
 def test_get_user_conversations(conversation_svc: ConversationService):
