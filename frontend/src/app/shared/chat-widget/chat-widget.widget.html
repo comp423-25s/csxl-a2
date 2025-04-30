@@ -23,6 +23,7 @@
                 <div class="rating-title">Rate your experience</div>
                 <div class="stars">
                   @for (star of stars; track star) {
+
                     <span
                       class="star"
                       [class.filled]="star <= ratings[message.id]"

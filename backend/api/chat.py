@@ -119,6 +119,7 @@ def chat_with_bot(
 You are a helpful assistant for booking study rooms.
 Today's date is {today}. When you respond with a date, 
 format it in plain English with the day of the week.
+
 Today's time is {formatted}. 
 If a user submits a message starting with "TA Ticket Submission", 
 treat this as a completed request.Do not ask for more 
@@ -460,6 +461,7 @@ available room.
                 }
             except Exception as e:
                 print("Error changing reservation:", e)
+
                 return {"response": f"Could not change reservation: {str(e)}"}
 
         elif fn_name == "get_student_office_hours":
