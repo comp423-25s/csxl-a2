@@ -23,17 +23,49 @@
                 <div class="rating-title">Rate your experience</div>
                 <div class="stars">
                   @for (star of stars; track star) {
-                    <span 
-                      class="star" 
-                      [class.filled]="star <= ratings[message.id]" 
-                      (click)="setRating(star, message.id)">&#9733;</span>
+                    <span
+                      class="star"
+                      [class.filled]="star <= ratings[message.id]"
+                      (click)="setRating(star, message.id)"
+                      >&#9733;</span
+                    >
                   }
                 </div>
               </div>
             }
-          </div>
-        }
-      </div>
+          
+        
+        
+         
+          @else if (message.sender === 'bot' && (isOfficeHour(message.text))) {
+            <div class="ta-ticket-form">
+              <select [(ngModel)]="selectedTicketType">
+                <option value="">Select Ticket Type</option>
+                <option value="conceptual">Conceptual</option>
+                <option value="assignment">Assignment</option>
+              </select>
+        
+              @if (selectedTicketType === 'conceptual') {
+                <textarea
+                  [(ngModel)]="taTicket.conceptualQuestion"
+                  placeholder="Enter your question or topic..."
+                ></textarea>
+              } @else if (selectedTicketType === 'assignment') {
+                <textarea [(ngModel)]="taTicket.assignmentSection" placeholder="Section needing help..."></textarea>
+                <textarea [(ngModel)]="taTicket.assignmentDescription" placeholder="Describe your goal..."></textarea>
+                <textarea [(ngModel)]="taTicket.assignmentConcepts" placeholder="List concepts..."></textarea>
+                <textarea [(ngModel)]="taTicket.assignmentAttempts" placeholder="What have you tried?"></textarea>
+              }
+              <div class="button-row">
+              <button mat-raised-button color="primary" (click)="submitTicketAsMessage()">Submit</button>
+              <button mat-button color="warn" (click)="cancelTicketForm()">Cancel</button>
+            </div>
+            </div>
+          }
+        </div>
+      }
+  </div>
+      
       <div class="chat-input">
         <input
           type="text"

@@ -6,7 +6,6 @@ import {
   OnInit
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { use } from 'marked';
 
 interface User {
   id: number;
@@ -37,6 +36,24 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
   isChatOpen = false;
   userMessage = '';
+  private messageId = 2;
+  private shouldScroll = false;
+  private justOpenedChat = false;
+  ratings: { [messageId: number]: number } = {};
+  stars = [1, 2, 3, 4, 5];
+  userId: number | null = null;
+  myCourses: any;
+  selectedCourseSiteId: any;
+  selectedTicketType: 'conceptual' | 'assignment' | '' = '';
+  taTicket = {
+    className: '',
+    conceptualQuestion: '',
+    assignmentSection: '',
+    assignmentDescription: '',
+    assignmentConcepts: '',
+    assignmentAttempts: ''
+  };
+
   messages: { id: number; text: string; sender: 'user' | 'bot'; time: Date }[] =
     [
       {
@@ -46,12 +63,40 @@ export class ChatWidget implements AfterViewChecked, OnInit {
         time: new Date(Date.now())
       }
     ];
-  private messageId = 2;
-  private shouldScroll = false;
-  private justOpenedChat = false;
-  ratings: { [messageId: number]: number } = {};
-  stars = [1, 2, 3, 4, 5];
-  userId: number | null = null;
+
+  submitTicketAsMessage(): void {
+    let message = `TA Ticket Submission\n`;
+    message += `Type: ${this.selectedTicketType}\n`;
+
+    if (this.selectedTicketType === 'conceptual') {
+      message += `Question: ${this.taTicket.conceptualQuestion}\n`;
+    } else if (this.selectedTicketType === 'assignment') {
+      message += `Section: ${this.taTicket.assignmentSection}\n`;
+      message += `Description: ${this.taTicket.assignmentDescription}\n`;
+      message += `Concepts: ${this.taTicket.assignmentConcepts}\n`;
+      message += `Attempts: ${this.taTicket.assignmentAttempts}\n`;
+    }
+
+    const formatted = message.trim();
+
+    this.userMessage = formatted;
+    this.saveMessagesToLocalStorage();
+    this.cancelTicketForm();
+    this.scrollToBottom();
+    this.sendMessage();
+  }
+
+  cancelTicketForm(): void {
+    this.selectedTicketType = '';
+    this.taTicket = {
+      conceptualQuestion: '',
+      assignmentSection: '',
+      assignmentDescription: '',
+      assignmentConcepts: '',
+      assignmentAttempts: '',
+      className: ''
+    };
+  }
 
   setRating(star: number, messageId: number): void {
     this.ratings[messageId] = star;
@@ -73,6 +118,16 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     return pattern.test(message);
   }
 
+  isOfficeHour(message: string): boolean {
+    const pattern = /^Your office hour for .+$/;
+    return pattern.test(message);
+  }
+
+  isOfficeHourConfirmed(message: string): boolean {
+    const pattern = /^Ticket created for .+$/;
+    return pattern.test(message);
+  }
+
   fetchUser() {
     const token = localStorage.getItem('bearerToken');
     if (!token) return;
@@ -84,7 +139,6 @@ export class ChatWidget implements AfterViewChecked, OnInit {
       .subscribe({
         next: (user) => {
           this.userId = user.id;
-          console.log('Logged in as:', user);
         },
         error: (err) => {
           console.error('Unable to fetch user:', err);
@@ -136,17 +190,6 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     }));
 
     const token = localStorage.getItem('bearerToken');
-    console.log('Bearer token being used:', token);
-    console.log(
-      JSON.stringify(
-        {
-          message: trimmed,
-          history: openaiFormattedHistory
-        },
-        null,
-        2
-      )
-    );
 
     fetch('/api/chat', {
       method: 'POST',
@@ -179,7 +222,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
       .catch((err) => {
         this.messages.push({
           id: this.messageId++,
-          text: 'I seem to have experienced an error. Report it here: {add link}',
+          text: 'I seem to have experienced an error. Please delete chat history and try again. If this persists reach out to Kris Jordan',
           sender: 'bot',
           time: new Date(Date.now())
         });
@@ -220,7 +263,6 @@ export class ChatWidget implements AfterViewChecked, OnInit {
         next: (res) => console.log('Conversation saved:', res),
         error: (err) => console.error('Failed to save conversation:', err)
       });
-    console.log('Sending conversation to DB:', conversation);
   }
 
   loadMessagesFromLocalStorage(): void {
@@ -236,6 +278,18 @@ export class ChatWidget implements AfterViewChecked, OnInit {
         const diff = now.getTime() - messageTime.getTime();
         return diff < 24 * 60 * 60 * 1000;
       });
+
+      if (this.messages.length === 0) {
+        this.messages = [
+          {
+            id: 1,
+            text: "Hi! I'm ChadGPT. How can I help you today?",
+            sender: 'bot',
+            time: new Date(Date.now())
+          }
+        ];
+        this.messageId = 2;
+      }
     }
 
     if (storedId) {
