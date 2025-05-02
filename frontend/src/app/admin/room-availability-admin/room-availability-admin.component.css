@@ -12,4 +12,39 @@ table {
   th {
     background-color: black;
   }
+
+  td {
+    transition: color 0.3s ease;
+  }
+  
+  button {
+    transition: background-color 0.3s ease;
+  }
+  
+  .availability-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .spinner {
+    margin-right: 4px;
+  }
+  .availability-spinner {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .availability-spinner.visible {
+    opacity: 1;
+  }
+  
+  .availability-text {
+    vertical-align: middle;
+  }
+  
+  
   

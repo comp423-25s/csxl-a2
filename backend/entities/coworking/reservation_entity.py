@@ -10,6 +10,11 @@ from ..user_entity import UserEntity
 from .reservation_user_table import reservation_user_table
 from .reservation_seat_table import reservation_seat_table
 from typing import Self
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..room_entity import RoomEntity
+
 
 __authors__ = ["Kris Jordan"]
 __copyright__ = "Copyright 2023"
@@ -28,7 +33,8 @@ class ReservationEntity(EntityBase):
     end: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     state: Mapped[ReservationState] = mapped_column(String, nullable=False)
     walkin: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    room_id: Mapped[str] = mapped_column(String, ForeignKey("room.id"), nullable=True)
+    room_id: Mapped[str] = mapped_column(ForeignKey("public.room.id"), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, nullable=False
     )

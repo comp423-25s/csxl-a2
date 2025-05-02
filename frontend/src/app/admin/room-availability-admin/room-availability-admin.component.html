@@ -12,12 +12,32 @@
     <tbody>
       <tr *ngFor="let room of rooms">
         <td>{{ room.name }}</td>
-        <td>{{ room.available ? 'Available' : 'Unavailable' }}</td>
-        <td>
-          <button (click)="toggleAvailability(room)" mat-flat-button color="primary">
-            {{ room.available ? 'Set Unavailable' : 'Set Available' }}
-          </button>
+
+        <!-- Color-coded availability text -->
+        <td [ngStyle]="{ color: room.available ? 'green' : 'red' }">
+          {{ room.available ? 'Available' : 'Unavailable' }}
         </td>
+
+        <!-- Dynamic button color -->
+        <td>
+          <button
+            (click)="toggleAvailability(room)"
+            mat-flat-button
+            [disabled]="isUpdating(room)"
+            [color]="room.available ? 'warn' : 'primary'"
+            class="availability-button"
+          >
+            <mat-spinner
+              diameter="20"
+              strokeWidth="3"
+              class="availability-spinner"
+              [class.visible]="isUpdating(room)"
+            ></mat-spinner>
+            <span class="availability-text">
+              {{ room.available ? 'Set Unavailable' : 'Set Available' }}
+            </span>
+          </button>
+        </td>           
       </tr>
     </tbody>
   </table>

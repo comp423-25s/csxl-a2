@@ -17,6 +17,7 @@ class RoomEntity(EntityBase):
     """Entity for Rooms under XL management."""
 
     __tablename__ = "room"
+    __table_args__ = {"schema": "public"}  # 👈 Add this line
 
     # Room Model Fields
     id: Mapped[str] = mapped_column(String, primary_key=True)
@@ -26,6 +27,7 @@ class RoomEntity(EntityBase):
     room: Mapped[str] = mapped_column(String)
     nickname: Mapped[str] = mapped_column(String)
     reservable: Mapped[bool] = mapped_column(Boolean)
+    is_available: Mapped[bool] = mapped_column(Boolean, default=True)
 
     seats: Mapped[list["SeatEntity"]] = relationship(  # type: ignore
         "SeatEntity", back_populates="room"
@@ -54,6 +56,7 @@ class RoomEntity(EntityBase):
             room=self.room,
             capacity=self.capacity,
             reservable=self.reservable,
+            is_available=self.is_available,
             seats=[seat.to_model() for seat in self.seats],
         )
 
@@ -73,4 +76,5 @@ class RoomEntity(EntityBase):
             room=model.room,
             capacity=model.capacity,
             reservable=model.reservable,
+            is_available=model.is_available,
         )

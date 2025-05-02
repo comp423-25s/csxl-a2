@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from backend.services.coworking.reservation import ReservationException
-
+from backend.api import room_toggle
 from .api.events import events
 
 from .api import (
@@ -113,6 +113,8 @@ feature_apis = [
 
 for feature_api in feature_apis:
     app.include_router(feature_api.api)
+
+app.include_router(room_toggle.router, prefix="/api")
 
 # Static file mount used for serving Angular front-end in production, as well as static assets
 app.mount("/", static_files.StaticFileMiddleware(directory=Path("./static")))
