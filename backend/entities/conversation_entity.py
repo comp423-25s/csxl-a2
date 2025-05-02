@@ -5,7 +5,11 @@ from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .entity_base import EntityBase
 from typing import Self
-from ..models.conversations.conversation import Conversation, ConversationOutcome
+from ..models.conversations.conversation import (
+    Conversation,
+    ConversationCreate,
+    ConversationOutcome,
+)
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -39,7 +43,7 @@ class ConversationEntity(EntityBase):
     )
 
     @classmethod
-    def from_model(cls, model: Conversation) -> Self:
+    def from_model(cls, model: ConversationCreate) -> "ConversationEntity":
         """Converts a 'Conversation' model to a 'ConversationEntity'
 
         Parameters:
@@ -48,7 +52,6 @@ class ConversationEntity(EntityBase):
             ConversationEntity: The converted entity
         """
         return cls(
-            id=model.id,
             created_at=model.created_at,
             user_id=model.user_id,
             chat_history=model.chat_history,

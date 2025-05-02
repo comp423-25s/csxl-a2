@@ -226,6 +226,8 @@ class OfficeHourTicketService:
         creator_ids = [user.id]
         # TODO: Reimplement group tickets
         # list(set([creator.id for creator in oh_ticket_draft.creators] + [user.id]))
+        print(f"[DEBUG] User attempting to submit ticket: {user.id}")
+        print(f"[DEBUG] Ticket request: {ticket}")
 
         # Create query off of the member query for just the members matching
         # with the current user (used to determine permissions)
@@ -237,8 +239,13 @@ class OfficeHourTicketService:
             .join(OfficeHoursEntity)
             .where(OfficeHoursEntity.id == ticket.office_hours_id)
         )
-
+        print(
+            f"[DEBUG] Office hour belongs to course_site_id: {ticket.office_hours_id}"
+        )
         user_members = self._session.scalars(user_member_query).unique().all()
+        print(
+            f"[DEBUG] Section members found for user {user.id}: {[member.section_id for member in user_members]}"
+        )
 
         user_member_ids = [user_member.user_id for user_member in user_members]
 

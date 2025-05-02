@@ -6,7 +6,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from backend.models.conversations.conversation import Conversation
+from backend.models.conversations.conversation import Conversation, ConversationCreate
 from backend.models.conversations.conversation_outcome import ConversationOutcome
 from backend.models.user import User
 
@@ -41,7 +41,7 @@ class ConversationService:
         self._policies_svc = policies_svc
         self._operating_hours_svc = operating_hours_svc
 
-    def create_conversation(self, conversation: Conversation) -> Conversation:
+    def create_conversation(self, conversation: ConversationCreate) -> Conversation:
         """Creates a new conversation record in the database."""
         entity = ConversationEntity.from_model(conversation)
         self._session.add(entity)

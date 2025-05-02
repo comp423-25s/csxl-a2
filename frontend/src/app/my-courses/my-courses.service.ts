@@ -61,14 +61,14 @@ export class MyCoursesService {
   /** Exposed computed signals based on date */
   currentTerms = computed(() => {
     return this.termsSignal().filter((term) => {
-      let currentDate = new Date();
+      let currentDate = new Date(Date.now());
       return currentDate <= term.end;
     });
   });
 
   pastTerms = computed(() => {
     return this.termsSignal().filter((term) => {
-      let currentDate = new Date();
+      let currentDate = new Date(Date.now());
       return term.end < currentDate;
     });
   });
