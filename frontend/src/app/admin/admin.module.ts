@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -54,7 +54,8 @@ import { RoomAvailabilityAdminComponent } from './room-availability-admin/room-a
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
-    MatCardModule
+    MatCardModule,
+    MatExpansionModule
   ]
 })
 export class AdminModule {}
