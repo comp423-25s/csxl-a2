@@ -3,6 +3,8 @@
 from datetime import datetime
 from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from backend.entities.user_entity import UserEntity
 from .entity_base import EntityBase
 from typing import Self
 from ..models.conversations.conversation import (

@@ -1,47 +1,33 @@
-import { Component } from '@angular/core';
-import { Route } from '@angular/router';
-import { ChatbotDataService } from './data.component.service';
-
-interface Conversation {
-  id: number;
-  messages: string[];
-  rating: number;
-  date: string;
-}
+import { Component, OnInit } from '@angular/core';
+import { ChatbotDataService, Conversation } from './data.component.service';
 
 @Component({
   selector: 'app-data',
   templateUrl: './data.component.html',
   styleUrls: ['./data.component.css']
 })
-export class DataComponent {
+export class DataComponent implements OnInit {
   constructor(private chatbotDataService: ChatbotDataService) {}
 
-  conversations: Conversation[] = [
-    {
-      id: 1,
-      messages: ['Hi there!', 'How can I help you today?', 'Thanks!'],
-      rating: 4,
-      date: '2025-04-29T14:30:00Z'
-    },
-    {
-      id: 2,
-      messages: ['What time does the library open?', '8am to 10pm daily.'],
-      rating: 5,
-      date: '2025-04-28T10:15:00Z'
-    },
-    {
-      id: 3,
-      messages: [
-        'Tell me a joke',
-        "Why don't eggs tell secrets? They might crack up!"
-      ],
-      rating: 2,
-      date: '2025-05-01T09:00:00Z'
-    }
-  ];
-
+  conversations: Conversation[] = [];
   selectedSort: string = 'date-desc';
+
+  ngOnInit() {
+    this.chatbotDataService.getAllConversations().subscribe({
+      next: (data) => {
+        // If backend uses `chat_history` and `created_at`, normalize the keys here:
+        this.conversations = data.map((c) => ({
+          id: c.id,
+          messages: (c as any).messages || (c as any).chat_history,
+          rating: c.rating,
+          date: (c as any).date || (c as any).created_at
+        }));
+      },
+      error: (err) => {
+        console.error('Error loading conversations:', err);
+      }
+    });
+  }
 
   get sortedConversations(): Conversation[] {
     return [...this.conversations].sort((a, b) => {
