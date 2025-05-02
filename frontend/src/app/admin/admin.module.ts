@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -21,6 +21,10 @@ import { AdminUsersRolesComponent } from './accounts/admin-accounts.component';
 import { AdminUsersListComponent } from './accounts/users/admin-users.component';
 import { AdminRolesListComponent } from './accounts/roles/list/admin-roles-list.component';
 import { AdminRoleDetailsComponent } from './accounts/roles/details/admin-role-details.component';
+import { RoomAvailabilityWidgetComponent } from './widgets/room-availability-widget/room-availability-widget.component';
+import { ResponseRatingsWidgetComponent } from './widgets/response-ratings-widget/response-ratings-widget.component';
+import { ResponseRatingsAdminComponent } from './response-ratings-admin/response-ratings-admin.component';
+import { RoomAvailabilityAdminComponent } from './room-availability-admin/room-availability-admin.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +32,11 @@ import { AdminRoleDetailsComponent } from './accounts/roles/details/admin-role-d
     AdminUsersRolesComponent,
     AdminUsersListComponent,
     AdminRolesListComponent,
-    AdminRoleDetailsComponent
+    AdminRoleDetailsComponent,
+    RoomAvailabilityWidgetComponent,
+    ResponseRatingsWidgetComponent,
+    ResponseRatingsAdminComponent,
+    RoomAvailabilityAdminComponent
   ],
   imports: [
     CommonModule,
@@ -46,7 +54,8 @@ import { AdminRoleDetailsComponent } from './accounts/roles/details/admin-role-d
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
-    MatCardModule
+    MatCardModule,
+    MatExpansionModule
   ]
 })
 export class AdminModule {}

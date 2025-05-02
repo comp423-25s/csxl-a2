@@ -6,6 +6,8 @@ import { AdminRolesListComponent } from './accounts/roles/list/admin-roles-list.
 import { AdminUsersListComponent } from './accounts/users/admin-users.component';
 import { AdminComponent } from './admin.component';
 import { permissionGuard } from '../permission.guard';
+import { RoomAvailabilityAdminComponent } from './room-availability-admin/room-availability-admin.component';
+import { ResponseRatingsAdminComponent } from './response-ratings-admin/response-ratings-admin.component';
 
 const routes: Routes = [
   {
@@ -22,7 +24,9 @@ const routes: Routes = [
       AdminRolesListComponent.Route,
       AdminRoleDetailsComponent.Route
     ]
-  }
+  },
+  { path: 'room-availability', component: RoomAvailabilityAdminComponent },
+  { path: 'response-ratings', component: ResponseRatingsAdminComponent }
 ];
 
 @NgModule({

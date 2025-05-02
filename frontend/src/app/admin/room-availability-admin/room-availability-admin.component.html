@@ -1,0 +1,24 @@
+<h1>Manage Room Availability</h1>
+
+<div *ngIf="rooms.length > 0">
+  <table>
+    <thead>
+      <tr>
+        <th>Room</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let room of rooms">
+        <td>{{ room.name }}</td>
+        <td>{{ room.available ? 'Available' : 'Unavailable' }}</td>
+        <td>
+          <button (click)="toggleAvailability(room)" mat-flat-button color="primary">
+            {{ room.available ? 'Set Unavailable' : 'Set Available' }}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
