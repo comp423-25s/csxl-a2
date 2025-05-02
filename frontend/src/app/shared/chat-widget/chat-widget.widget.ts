@@ -104,7 +104,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   }
 
   isReservationConfirmation(message: string): boolean {
-    const pattern = /^✅ Room .+ reserved from .+ to .+$/;
+    const pattern = /^Room .+ reserved from .+ to .+$/;
     return pattern.test(message);
   }
   isReservationChangeConfirmation(message: string): boolean {
