@@ -12,21 +12,25 @@
   </div>
 
   <div class="conversation-list">
-    <div class="conversation-card" *ngFor="let convo of sortedConversations">
-      <div class="conversation-title">Conversation #{{ convo.id }}</div>
-      <div class="conversation-meta">
-        <span class="rating">Rating: {{ convo.rating }}</span>
-        <span class="date">{{ convo.date | date: 'medium' }}</span>
+    @for (convo of sortedConversations; track convo.id) {
+      <div class="conversation-card">
+        <div class="conversation-title">Conversation #{{ convo.id }}</div>
+        <div class="conversation-meta">
+          <span class="rating">Rating: {{ convo.rating }}</span>
+          <span class="date">{{ convo.date | date: 'medium' }}</span>
+        </div>
+        <ul class="messages">
+          @for (msg of convo.messages; track $index) {
+            <li>{{ msg }}</li>
+          }
+        </ul>
       </div>
-      <ul class="messages">
-        <li *ngFor="let msg of convo.messages">
-          {{ msg }}
-        </li>
-      </ul>
-    </div>
+    }
 
-    <div class="see-more" *ngIf="hasMore">
-      <button (click)="loadMore()">See More</button>
-    </div>
+    @if (hasMore) {
+      <div class="see-more">
+        <button (click)="loadMore()">See More</button>
+      </div>
+    }
   </div>
 </div>

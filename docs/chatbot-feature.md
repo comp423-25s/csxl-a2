@@ -124,8 +124,6 @@ Created a Chatbot entity to allow the admin page to connect to the database and 
 
 Created a widget with a table displaying each room and its live availability, with connections to RoomService and AdminDataService. Backend connection gives 200, but does not work when attempting to integrate with the chatbot, as storage of availability wasn't figured out.
 
-## Admin Chat Data
-
 ## End User Experience
 
 Here’s an example flow of a user making a room reservation on the frontend:
