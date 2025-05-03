@@ -28,7 +28,9 @@ class ConversationEntity(EntityBase):
     # ID of the conversation
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     # Time when the conversation was created
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
     # ID of the user who started the conversation
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     # Relationship to the user

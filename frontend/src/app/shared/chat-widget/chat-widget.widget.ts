@@ -191,7 +191,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
 
     const token = localStorage.getItem('bearerToken');
 
-    // 🧠 Naive room ID extraction (replace with NLP later if needed)
+    // Naive room ID extraction (replace with NLP later if needed)
     const roomIdMatch = trimmed.match(/room\s+(\w+)/i);
     const maybeRoomId = roomIdMatch ? roomIdMatch[1] : null;
 

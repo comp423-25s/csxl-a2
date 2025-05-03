@@ -24,6 +24,9 @@
         </li>
       </ul>
     </div>
+
+    <div class="see-more" *ngIf="hasMore">
+      <button (click)="loadMore()">See More</button>
+    </div>
   </div>
 </div>
-

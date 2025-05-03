@@ -11,11 +11,11 @@ export class DataComponent implements OnInit {
 
   conversations: Conversation[] = [];
   selectedSort: string = 'date-desc';
+  visibleCount: number = 20;
 
   ngOnInit() {
     this.chatbotDataService.getAllConversations().subscribe({
       next: (data) => {
-        // If backend uses `chat_history` and `created_at`, normalize the keys here:
         this.conversations = data.map((c) => ({
           id: c.id,
           messages: (c as any).messages || (c as any).chat_history,
@@ -30,23 +30,34 @@ export class DataComponent implements OnInit {
   }
 
   get sortedConversations(): Conversation[] {
-    return [...this.conversations].sort((a, b) => {
-      switch (this.selectedSort) {
-        case 'date-asc':
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
-        case 'date-desc':
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
-        case 'rating-asc':
-          return a.rating - b.rating;
-        case 'rating-desc':
-          return b.rating - a.rating;
-        default:
-          return 0;
-      }
-    });
+    return [...this.conversations]
+      .sort((a, b) => {
+        switch (this.selectedSort) {
+          case 'date-asc':
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+          case 'date-desc':
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+          case 'rating-asc':
+            return a.rating - b.rating;
+          case 'rating-desc':
+            return b.rating - a.rating;
+          default:
+            return 0;
+        }
+      })
+      .slice(0, this.visibleCount);
   }
 
   onSortChange(sortValue: string) {
     this.selectedSort = sortValue;
+    this.visibleCount = 20;
+  }
+
+  loadMore() {
+    this.visibleCount += 20;
+  }
+
+  get hasMore(): boolean {
+    return this.visibleCount < this.conversations.length;
   }
 }

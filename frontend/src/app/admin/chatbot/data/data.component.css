@@ -67,3 +67,16 @@ body {
   padding: 0.75rem;
   line-height: 1.5;
 }
+.see-more {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.see-more button {
+  padding: 0.5rem 1rem;
+  background-color: #eab308;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}

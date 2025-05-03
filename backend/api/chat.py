@@ -11,7 +11,6 @@ from backend.models import User
 from backend.models.chat import ChatRequest, ChatResponse
 from backend.api.authentication import registered_user
 from backend.models.coworking.reservation import ReservationPartial
-from backend.models.pagination import PaginationParams
 from backend.services.office_hours.office_hours import OfficeHoursService
 from backend.services.openai import OpenAIService
 from backend.services.coworking.reservation import (
@@ -119,7 +118,6 @@ def chat_with_bot(
 You are a helpful assistant for booking study rooms.
 Today's date is {today}. When you respond with a date, 
 format it in plain English with the day of the week.
-
 Today's time is {formatted}. 
 If a user submits a message starting with "TA Ticket Submission", 
 treat this as a completed request.Do not ask for more 
@@ -135,7 +133,15 @@ have to do with booking study rooms or the CSXL, respond
 by suggesting what actions you can perform. When you respond,
 convert the time into 12 hour time. When booking a 
 room, you should only show times for after the current
-time. When someone asks what time rooms are 
+time. Users can only book rooms if the start and end times 
+fall exactly on the hour or half-hour, such as 1:00, 1:30, 2:00, etc. 
+The total duration of a booking must not exceed 2 hours. They may
+be exactly 2 hours. Do not allow bookings that start 
+or end at times like 1:15 or 2:45, or any other 
+time that does not end in :00 or :30. Only suggest and accept booking
+times that meet these requirements, and reject or correct requests 
+that do not follow the valid format.
+When someone asks what time rooms are 
 available provide the hour times not the day times.
 Rooms are available to be booked in thirty
 minute increments for any amount less than or equal to
