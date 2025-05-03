@@ -12,8 +12,8 @@ export class AdminDataService {
     return this.http.get<any[]>(`/api/room`);
   }
 
-  updateRoomAvailability(roomId: number, available: boolean): Observable<any> {
-    return this.http.patch<any>(`/api/room/${roomId}`, { available });
+  toggleRoomAvailability(roomId: string): Observable<any> {
+    return this.http.patch<any>(`/api/rooms/${roomId}/toggle-availability`, {});
   }
 
   getUserConversations(userId: number): Observable<any[]> {

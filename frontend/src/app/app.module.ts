@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DataComponent } from './admin/chatbot/data/data.component';
 
 /* HTTP and Auth */
 import { RouterModule } from '@angular/router';
@@ -57,6 +58,7 @@ import { MatChipsModule } from '@angular/material/chips';
     HomeComponent,
     AboutComponent,
     GateComponent,
+    DataComponent
   ],
   bootstrap: [AppComponent],
   imports: [
@@ -90,13 +92,13 @@ import { MatChipsModule } from '@angular/material/chips';
     RouterModule,
     SharedModule,
     JwtModule.forRoot({
-        config: {
-            tokenGetter: () => {
-                return localStorage.getItem('bearerToken');
-            }
+      config: {
+        tokenGetter: () => {
+          return localStorage.getItem('bearerToken');
         }
+      }
     })
-],
+  ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,

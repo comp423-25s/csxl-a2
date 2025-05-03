@@ -8,6 +8,7 @@ import { AdminDataService } from '../admin-data.service';
 })
 export class RoomAvailabilityAdminComponent implements OnInit {
   rooms: any[] = [];
+  updatingRoomIds = new Set<number>(); // Track which rooms are updating
 
   constructor(private adminDataService: AdminDataService) {}
 
@@ -22,11 +23,22 @@ export class RoomAvailabilityAdminComponent implements OnInit {
   }
 
   toggleAvailability(room: any): void {
-    const newAvailability = !room.available;
-    this.adminDataService
-      .updateRoomAvailability(room.id, newAvailability)
-      .subscribe(() => {
-        room.available = newAvailability; // Update locally after success
-      });
+    this.updatingRoomIds.add(room.id);
+
+    this.adminDataService.toggleRoomAvailability(room.id).subscribe({
+      next: (res) => {
+        console.log('Backend response:', res);
+        room.available = res.is_available; // update only when backend responds
+        this.updatingRoomIds.delete(room.id);
+      },
+      error: () => {
+        this.updatingRoomIds.delete(room.id);
+        alert('Failed to update availability');
+      }
+    });
+  }
+
+  isUpdating(room: any): boolean {
+    return this.updatingRoomIds.has(room.id);
   }
 }

@@ -1,0 +1,82 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  margin: 2rem;
+  padding: 1rem;
+  background-color: black;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sort-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.sort-controls select {
+  margin-left: 0.5rem;
+  padding: 0.4rem;
+}
+
+.date {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.conversation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.conversation-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  background: black;
+  color: white;
+}
+
+.conversation-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.conversation-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+}
+
+.rating {
+  font-weight: bold;
+  color: #eab308;
+}
+
+.messages {
+  background-color: #111;
+  border-radius: 8px;
+  padding: 0.75rem;
+  line-height: 1.5;
+}
+.see-more {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.see-more button {
+  padding: 0.5rem 1rem;
+  background-color: #eab308;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}

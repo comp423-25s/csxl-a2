@@ -72,3 +72,15 @@ def get_my_conversations(
 ) -> list[Conversation]:
     """Get all conversations for the currently logged in user."""
     return conversation_svc.get_user_conversations(subject.id)
+
+
+@api.get("", tags=["Conversations"])
+def get_all_conversations(
+    subject: User = Depends(registered_user),
+    conversation_svc: ConversationService = Depends(),
+) -> list[Conversation]:
+    """Admin endpoint to get all conversations."""
+    conversation_svc._permission_svc.enforce(
+        subject, "conversation.admin_list", "conversation/all"
+    )
+    return conversation_svc.get_all_conversations()

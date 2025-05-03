@@ -88,3 +88,12 @@ class ConversationService:
         conversations = self._session.scalars(query).all()
 
         return [conversation.to_model() for conversation in conversations]
+
+    def get_all_conversations(self) -> list[Conversation]:
+        """Returns all conversations in the database (admin only)."""
+        from sqlalchemy import select
+
+        query = select(ConversationEntity)
+        conversations = self._session.scalars(query).all()
+
+        return [c.to_model() for c in conversations]

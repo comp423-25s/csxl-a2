@@ -21,10 +21,9 @@ import { AdminUsersRolesComponent } from './accounts/admin-accounts.component';
 import { AdminUsersListComponent } from './accounts/users/admin-users.component';
 import { AdminRolesListComponent } from './accounts/roles/list/admin-roles-list.component';
 import { AdminRoleDetailsComponent } from './accounts/roles/details/admin-role-details.component';
-import { RoomAvailabilityWidgetComponent } from './widgets/room-availability-widget/room-availability-widget.component';
-import { ResponseRatingsWidgetComponent } from './widgets/response-ratings-widget/response-ratings-widget.component';
-import { ResponseRatingsAdminComponent } from './response-ratings-admin/response-ratings-admin.component';
 import { RoomAvailabilityAdminComponent } from './room-availability-admin/room-availability-admin.component';
+import { RoomAvailabilityWidgetComponent } from './widgets/room-availability-widget/room-availability-widget.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -33,10 +32,8 @@ import { RoomAvailabilityAdminComponent } from './room-availability-admin/room-a
     AdminUsersListComponent,
     AdminRolesListComponent,
     AdminRoleDetailsComponent,
-    RoomAvailabilityWidgetComponent,
-    ResponseRatingsWidgetComponent,
-    ResponseRatingsAdminComponent,
-    RoomAvailabilityAdminComponent
+    RoomAvailabilityAdminComponent,
+    RoomAvailabilityWidgetComponent
   ],
   imports: [
     CommonModule,
@@ -55,7 +52,8 @@ import { RoomAvailabilityAdminComponent } from './room-availability-admin/room-a
     ReactiveFormsModule,
     SharedModule,
     MatCardModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatProgressSpinnerModule
   ]
 })
 export class AdminModule {}

@@ -18,6 +18,7 @@ from ..database import engine
 from ..env import getenv
 from .. import entities
 
+
 from ..test.services import role_data, user_data, permission_data, room_data
 from ..test.services.organization import organization_demo_data
 from ..test.services.event import event_demo_data
@@ -27,6 +28,9 @@ from ..test.services.academics import course_data, term_data, section_data
 from ..test.services.office_hours import office_hours_data
 from ..test.services.academics.hiring import hiring_data
 from ..test.services.articles import article_data
+
+from alembic.config import Config
+from alembic import command
 
 __authors__ = ["Kris Jordan", "Ajay Gandecha"]
 __copyright__ = "Copyright 2023"
@@ -43,8 +47,9 @@ subprocess.run(["python3", "-m", "backend.script.delete_database"])
 subprocess.run(["python3", "-m", "backend.script.create_database"])
 
 # Reset Tables
-entities.EntityBase.metadata.drop_all(engine)
-entities.EntityBase.metadata.create_all(engine)
+# ensures all schema changes (is_available) match latest migration files
+alembic_cfg = Config("alembic.ini")
+command.upgrade(alembic_cfg, "head")
 
 # Initialize the SQLAlchemy session
 with Session(engine) as session:

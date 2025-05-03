@@ -7,7 +7,7 @@ import { AdminUsersListComponent } from './accounts/users/admin-users.component'
 import { AdminComponent } from './admin.component';
 import { permissionGuard } from '../permission.guard';
 import { RoomAvailabilityAdminComponent } from './room-availability-admin/room-availability-admin.component';
-import { ResponseRatingsAdminComponent } from './response-ratings-admin/response-ratings-admin.component';
+import { DataComponent } from './chatbot/data/data.component';
 
 const routes: Routes = [
   {
@@ -26,7 +26,7 @@ const routes: Routes = [
     ]
   },
   { path: 'room-availability', component: RoomAvailabilityAdminComponent },
-  { path: 'response-ratings', component: ResponseRatingsAdminComponent }
+  { path: 'chatbot-data', component: DataComponent }
 ];
 
 @NgModule({

@@ -18,6 +18,7 @@ the_xl = RoomDetails(
     nickname="The XL",
     capacity=40,
     reservable=False,
+    is_available=True,
     seats=[],
 )
 
@@ -28,6 +29,7 @@ group_a = RoomDetails(
     nickname="Group A",
     capacity=4,
     reservable=True,
+    is_available=True,
     seats=[],
 )
 
@@ -38,6 +40,7 @@ group_b = RoomDetails(
     nickname="Group B",
     capacity=4,
     reservable=True,
+    is_available=True,
     seats=[],
 )
 
@@ -48,6 +51,7 @@ group_c = RoomDetails(
     nickname="Group C",
     capacity=6,
     reservable=True,
+    is_available=True,
     seats=[],
 )
 
@@ -58,6 +62,7 @@ pair_a = RoomDetails(
     nickname="Pair A",
     capacity=2,
     reservable=True,
+    is_available=True,
     seats=[],
 )
 
@@ -68,6 +73,7 @@ new_room = RoomDetails(
     nickname="Large Room",
     capacity=100,
     reservable=False,
+    is_available=True,
     seats=[],
 )
 
@@ -78,6 +84,7 @@ edited_xl = RoomDetails(
     nickname="The CSXL",
     capacity=100,
     reservable=False,
+    is_available=True,
     seats=[],
 )
 
@@ -88,6 +95,7 @@ virtual = RoomDetails(
     nickname="Virtual CSXL",
     capacity=999,
     reservable=False,
+    is_available=True,
     seats=[],
 )
 

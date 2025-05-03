@@ -79,7 +79,7 @@ class OfficeHoursEntity(EntityBase):
     )
 
     # NOTE: Unidirectional relationship to Room
-    room_id: Mapped[str] = mapped_column(ForeignKey("room.id"), nullable=False)
+    room_id: Mapped[str] = mapped_column(ForeignKey("public.room.id"), nullable=False)
     room: Mapped["RoomEntity"] = relationship("RoomEntity")
 
     # NOTE: One-to-many relationship of OfficeHoursEvent to tickets

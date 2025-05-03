@@ -1,0 +1,32 @@
+<div class="container">
+  <h1>Chatbot Conversation History</h1>
+
+  <div class="sort-controls">
+    <label for="sort">Sort by:</label>
+    <select id="sort" [(ngModel)]="selectedSort">
+      <option value="date-desc">Newest</option>
+      <option value="date-asc">Oldest</option>
+      <option value="rating-desc">Highest Rating</option>
+      <option value="rating-asc">Lowest Rating</option>
+    </select>
+  </div>
+
+  <div class="conversation-list">
+    <div class="conversation-card" *ngFor="let convo of sortedConversations">
+      <div class="conversation-title">Conversation #{{ convo.id }}</div>
+      <div class="conversation-meta">
+        <span class="rating">Rating: {{ convo.rating }}</span>
+        <span class="date">{{ convo.date | date: 'medium' }}</span>
+      </div>
+      <ul class="messages">
+        <li *ngFor="let msg of convo.messages">
+          {{ msg }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="see-more" *ngIf="hasMore">
+      <button (click)="loadMore()">See More</button>
+    </div>
+  </div>
+</div>

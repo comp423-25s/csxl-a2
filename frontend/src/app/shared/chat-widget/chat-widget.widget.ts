@@ -104,7 +104,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
   }
 
   isReservationConfirmation(message: string): boolean {
-    const pattern = /^✅ Room .+ reserved from .+ to .+$/;
+    const pattern = /^Room .+ reserved from .+ to .+$/;
     return pattern.test(message);
   }
   isReservationChangeConfirmation(message: string): boolean {
@@ -172,6 +172,7 @@ export class ChatWidget implements AfterViewChecked, OnInit {
     const trimmed = this.userMessage.trim();
     if (!trimmed) return;
 
+    // Add user's message to chat
     this.messages.push({
       id: this.messageId++,
       text: trimmed,
@@ -179,11 +180,10 @@ export class ChatWidget implements AfterViewChecked, OnInit {
       time: new Date(Date.now())
     });
     this.saveMessagesToLocalStorage();
-
     this.userMessage = '';
     this.shouldScroll = true;
-    const recentMessages = this.messages.slice(-10);
 
+    const recentMessages = this.messages.slice(-10);
     const openaiFormattedHistory = recentMessages.map((m) => ({
       role: m.sender === 'bot' ? 'assistant' : 'user',
       content: m.text
@@ -191,6 +191,44 @@ export class ChatWidget implements AfterViewChecked, OnInit {
 
     const token = localStorage.getItem('bearerToken');
 
+    // Naive room ID extraction (replace with NLP later if needed)
+    const roomIdMatch = trimmed.match(/room\s+(\w+)/i);
+    const maybeRoomId = roomIdMatch ? roomIdMatch[1] : null;
+
+    if (maybeRoomId) {
+      this.http.get(`/api/room/${maybeRoomId}`).subscribe({
+        next: (room: any) => {
+          if (!room.is_available) {
+            this.messages.push({
+              id: this.messageId++,
+              text: `❌ Sorry, room "${room.nickname}" is currently unavailable. Please try a different room.`,
+              sender: 'bot',
+              time: new Date(Date.now())
+            });
+            this.saveMessagesToLocalStorage();
+            this.shouldScroll = true;
+            return;
+          }
+
+          // Room is available, proceed with chat
+          this.fetchChatResponse(trimmed, openaiFormattedHistory, token);
+        },
+        error: () => {
+          // If room check fails, just proceed normally
+          this.fetchChatResponse(trimmed, openaiFormattedHistory, token);
+        }
+      });
+    } else {
+      // No room mentioned, proceed as usual
+      this.fetchChatResponse(trimmed, openaiFormattedHistory, token);
+    }
+  }
+
+  private fetchChatResponse(
+    message: string,
+    history: any[],
+    token: string | null
+  ): void {
     fetch('/api/chat', {
       method: 'POST',
       headers: {
@@ -198,8 +236,8 @@ export class ChatWidget implements AfterViewChecked, OnInit {
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
-        message: trimmed,
-        history: openaiFormattedHistory
+        message,
+        history
       })
     })
       .then(async (res) => {
@@ -222,12 +260,12 @@ export class ChatWidget implements AfterViewChecked, OnInit {
       .catch((err) => {
         this.messages.push({
           id: this.messageId++,
-          text: 'I seem to have experienced an error. Please delete chat history and try again. If this persists reach out to Kris Jordan',
+          text: '⚠️ An error occurred. Please try again later or clear your chat history.',
           sender: 'bot',
           time: new Date(Date.now())
         });
-        this.shouldScroll = true;
         console.error(err);
+        this.shouldScroll = true;
       });
   }
 

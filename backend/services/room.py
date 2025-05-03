@@ -116,6 +116,7 @@ class RoomService:
         room_entity.room = room.room
         room_entity.capacity = room.capacity
         room_entity.reservable = room.reservable
+        room_entity.is_available = room.is_available
 
         # Commit changes
         self._session.commit()
@@ -144,3 +145,20 @@ class RoomService:
         # Delete and commit changes
         self._session.delete(room_entity)
         self._session.commit()
+
+    # Inside RoomService
+
+    def toggle_availability(self, subject: User, room_id: str) -> RoomDetails:
+        # Enforce update permission
+        self._permission_svc.enforce(subject, "room.update", f"room/{room_id}")
+
+        # Get the room
+        room = self._session.get(RoomEntity, room_id)
+        if not room:
+            raise ResourceNotFoundException(f"Room with id: {room_id} does not exist.")
+
+        # Toggle the value
+        room.is_available = not room.is_available
+        self._session.commit()
+
+        return room.to_details_model()
