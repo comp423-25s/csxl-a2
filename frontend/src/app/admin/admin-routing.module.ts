@@ -8,6 +8,7 @@ import { AdminComponent } from './admin.component';
 import { permissionGuard } from '../permission.guard';
 import { RoomAvailabilityAdminComponent } from './room-availability-admin/room-availability-admin.component';
 import { DataComponent } from './chatbot/data/data.component';
+
 const routes: Routes = [
   {
     path: '',
