@@ -18,7 +18,7 @@
         @for (message of messages; track message.id) {
           <div class="message" [ngClass]="message.sender">
             {{ message.text }}
-            @if (message.sender === 'bot' && (isReservationConfirmation(message.text) || isReservationChangeConfirmation(message.text) || isReservationCancellationConfirmation(message.text) || isOfficeHourConfirmed(message.text)|| isOfficeHour(message.text))) {
+            @if (message.sender === 'bot' && (isReservationConfirmation(message.text) || isReservationChangeConfirmation(message.text) || isReservationCancellationConfirmation(message.text) || isOfficeHourConfirmed(message.text))) {
               <div class="rating-container">
                 <div class="rating-title">Rate your experience</div>
                 <div class="stars">
